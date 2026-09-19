@@ -1,0 +1,186 @@
+:root {
+  /* Colors */
+  --color-white: #f2f2f7;
+  --color-background: #252525;
+  --color-dark-grey: #4e4e4e;
+  --color-neutral-grey: #a3a3a3;
+  --color-light-gray: #d1d1d6;
+  --color-accent: #fb5607;
+
+  /* Page / grid */
+  --page-width: 1440px;
+  --section-gap: 102px;
+  --grid-12-margin: 72px;
+  --grid-12-gutter: 16px;
+
+  /* Fonts */
+  --font-fraunces: "Fraunces", serif;
+  --font-geist: "Geist", sans-serif;
+
+  /* Title */
+  --font-title-family: var(--font-fraunces);
+  --font-title-weight: 600;
+  --font-title-letter-spacing: -0.03em;
+  --font-title-variation: "SOFT" 0, "WONK" 0;
+
+  /* H3 */
+  --font-h3-family: var(--font-geist);
+  --font-h3-weight: 700;
+  --font-h3-size: 24px;
+  --font-h3-line-height: normal;
+  --font-h3-letter-spacing: -0.04em;
+
+  /* H4 */
+  --font-h4-family: var(--font-geist);
+  --font-h4-weight: 400;
+  --font-h4-size: 20px;
+  --font-h4-line-height: normal;
+  --font-h4-letter-spacing: -0.03em;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background);
+  color: var(--color-white);
+  font-family: var(--font-geist);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.container-grid {
+  width: 100%;
+  max-width: var(--page-width);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 5vw, 4.5rem);
+}
+
+/* Nav */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 2rem;
+}
+
+.logo {
+  font-family: var(--font-fraunces);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-white);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-links a {
+  font-family: var(--font-h4-family);
+  font-weight: var(--font-h4-weight);
+  font-size: var(--font-h4-size);
+  letter-spacing: var(--font-h4-letter-spacing);
+  transition: opacity 0.15s ease;
+}
+
+.nav-links a:hover {
+  opacity: 0.7;
+}
+
+/* Hero */
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 96px;
+  padding-block: 64px;
+}
+
+.heading-group {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-h3-family);
+  font-weight: var(--font-h3-weight);
+  font-size: var(--font-h3-size);
+  line-height: var(--font-h3-line-height);
+  letter-spacing: var(--font-h3-letter-spacing);
+}
+
+/* Title: 192px at the 1440px design width, scaling down on narrower viewports */
+.headline {
+  margin: 0;
+  font-family: var(--font-title-family);
+  font-weight: var(--font-title-weight);
+  font-size: clamp(3rem, 13.5vw - 2.7px, 12rem);
+  line-height: 0.9167;
+  letter-spacing: var(--font-title-letter-spacing);
+  font-optical-sizing: auto;
+  font-variation-settings: var(--font-title-variation);
+}
+
+.subtext {
+  margin: 0;
+  max-width: 42rem;
+  font-family: var(--font-h4-family);
+  font-weight: var(--font-h4-weight);
+  font-size: var(--font-h4-size);
+  line-height: var(--font-h4-line-height);
+  letter-spacing: var(--font-h4-letter-spacing);
+}
+
+.cta {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 72px;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  font-family: var(--font-h3-family);
+  font-weight: var(--font-h3-weight);
+  font-size: var(--font-h3-size);
+  letter-spacing: var(--font-h3-letter-spacing);
+  color: var(--color-white);
+  transition: opacity 0.15s ease;
+}
+
+.cta:hover {
+  opacity: 0.9;
+}
+
+.footer-clock {
+  margin: 0;
+  font-family: var(--font-h4-family);
+  font-weight: var(--font-h4-weight);
+  font-size: var(--font-h4-size);
+  letter-spacing: var(--font-h4-letter-spacing);
+}
