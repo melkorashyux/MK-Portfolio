@@ -36,6 +36,44 @@
   --font-h4-size: 20px;
   --font-h4-line-height: normal;
   --font-h4-letter-spacing: -0.03em;
+
+  /* H5 */
+  --font-h5-family: var(--font-geist);
+  --font-h5-weight: 400;
+  --font-h5-size: 16px;
+  --font-h5-line-height: normal;
+  --font-h5-letter-spacing: -0.03em;
+
+  /* H6 */
+  --font-h6-family: var(--font-geist);
+  --font-h6-weight: 400;
+  --font-h6-size: 14px;
+  --font-h6-line-height: normal;
+  --font-h6-letter-spacing: -0.03em;
+}
+
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --gradient-angle-offset {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --gradient-percent {
+  syntax: "<percentage>";
+  initial-value: 5%;
+  inherits: false;
+}
+
+@property --gradient-shine {
+  syntax: "<color>";
+  initial-value: white;
+  inherits: false;
 }
 
 * {
@@ -84,17 +122,14 @@ a {
 }
 
 .logo {
-  font-family: var(--font-fraunces);
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--color-white);
+  height: 28px;
+  width: auto;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 32px;
 }
 
 .nav-links a {
@@ -148,7 +183,7 @@ a {
 
 .subtext {
   margin: 0;
-  max-width: 42rem;
+  max-width: 48rem;
   font-family: var(--font-h4-family);
   font-weight: var(--font-h4-weight);
   font-size: var(--font-h4-size);
@@ -157,30 +192,160 @@ a {
 }
 
 .cta {
+  --shiny-cta-bg: var(--color-background);
+  --shiny-cta-bg-subtle: #1a1a1a;
+  --shiny-cta-fg: var(--color-white);
+  --shiny-cta-highlight: var(--color-accent);
+  --shiny-cta-highlight-subtle: #ff9466;
+  --animation: gradient-angle linear infinite;
+  --duration: 5s;
+  --shadow-size: 2px;
+  --transition: 800ms cubic-bezier(0.25, 1, 0.5, 1);
+
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   width: fit-content;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  cursor: pointer;
+  outline-offset: 4px;
   padding: 16px 72px;
+  border: 1px solid transparent;
   border-radius: 9999px;
-  background: var(--color-accent);
   font-family: var(--font-h3-family);
   font-weight: var(--font-h3-weight);
   font-size: var(--font-h3-size);
+  line-height: normal;
   letter-spacing: var(--font-h3-letter-spacing);
-  color: var(--color-white);
-  transition: opacity 0.15s ease;
+  color: var(--shiny-cta-fg);
+  background: linear-gradient(var(--shiny-cta-bg), var(--shiny-cta-bg)) padding-box,
+    conic-gradient(
+        from calc(var(--gradient-angle) - var(--gradient-angle-offset)),
+        transparent,
+        var(--shiny-cta-highlight) var(--gradient-percent),
+        var(--gradient-shine) calc(var(--gradient-percent) * 2),
+        var(--shiny-cta-highlight) calc(var(--gradient-percent) * 3),
+        transparent calc(var(--gradient-percent) * 4)
+      )
+      border-box;
+  box-shadow: inset 0 0 0 1px var(--shiny-cta-bg-subtle);
+  transition: var(--transition);
+  transition-property: --gradient-angle-offset, --gradient-percent, --gradient-shine;
 }
 
-.cta:hover {
-  opacity: 0.9;
+.cta::before,
+.cta::after,
+.cta span::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  translate: -50% -50%;
+  z-index: -1;
+}
+
+.cta:active {
+  translate: 0 1px;
+}
+
+/* Dots pattern */
+.cta::before {
+  --size: calc(100% - var(--shadow-size) * 3);
+  --position: 2px;
+  --space: calc(var(--position) * 2);
+  width: var(--size);
+  height: var(--size);
+  background: radial-gradient(
+      circle at var(--position) var(--position),
+      white calc(var(--position) / 4),
+      transparent 0
+    )
+    padding-box;
+  background-size: var(--space) var(--space);
+  background-repeat: space;
+  mask-image: conic-gradient(from calc(var(--gradient-angle) + 45deg), black, transparent 10% 90%, black);
+  border-radius: inherit;
+  opacity: 0.4;
+  z-index: -1;
+}
+
+/* Inner shimmer */
+.cta::after {
+  --animation: shimmer linear infinite;
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(-50deg, transparent, var(--shiny-cta-highlight), transparent);
+  mask-image: radial-gradient(circle at bottom, transparent 40%, black);
+  opacity: 0.6;
+}
+
+.cta span {
+  z-index: 1;
+}
+
+.cta span::before {
+  --size: calc(100% + 1rem);
+  width: var(--size);
+  height: var(--size);
+  box-shadow: inset 0 -1ex 2rem 4px var(--shiny-cta-highlight);
+  opacity: 0;
+  transition: opacity var(--transition);
+  animation: calc(var(--duration) * 1.5) breathe linear infinite;
+}
+
+.cta,
+.cta::before,
+.cta::after {
+  animation: var(--animation) var(--duration), var(--animation) calc(var(--duration) / 0.4) reverse paused;
+  animation-composition: add;
+}
+
+.cta:is(:hover, :focus-visible) {
+  --gradient-percent: 20%;
+  --gradient-angle-offset: 95deg;
+  --gradient-shine: var(--shiny-cta-highlight-subtle);
+}
+
+.cta:is(:hover, :focus-visible),
+.cta:is(:hover, :focus-visible)::before,
+.cta:is(:hover, :focus-visible)::after {
+  animation-play-state: running;
+}
+
+.cta:is(:hover, :focus-visible) span::before {
+  opacity: 1;
+}
+
+@keyframes gradient-angle {
+  to {
+    --gradient-angle: 360deg;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes breathe {
+  from,
+  to {
+    scale: 1;
+  }
+  50% {
+    scale: 1.2;
+  }
 }
 
 .footer-clock {
   margin: 0;
-  font-family: var(--font-h4-family);
-  font-weight: var(--font-h4-weight);
-  font-size: var(--font-h4-size);
-  letter-spacing: var(--font-h4-letter-spacing);
+  font-family: var(--font-h6-family);
+  font-weight: var(--font-h6-weight);
+  font-size: var(--font-h6-size);
+  letter-spacing: var(--font-h6-letter-spacing);
 }
