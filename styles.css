@@ -9,9 +9,11 @@
 
   /* Page / grid */
   --page-width: 1440px;
-  --section-gap: 102px;
+  --page-padding: clamp(1.25rem, 5vw, 4.5rem);
+  --section-gap: 256px;
   --grid-12-margin: 72px;
   --grid-12-gutter: 16px;
+  --grid-3-gutter: 40px;
 
   /* Fonts */
   --font-fraunces: "Fraunces", serif;
@@ -22,6 +24,19 @@
   --font-title-weight: 600;
   --font-title-letter-spacing: -0.03em;
   --font-title-variation: "SOFT" 0, "WONK" 0;
+
+  /* Sub Title */
+  --font-subtitle-family: var(--font-fraunces);
+  --font-subtitle-weight: 600;
+  --font-subtitle-letter-spacing: -0.03em;
+  --font-subtitle-variation: "SOFT" 0, "WONK" 0;
+
+  /* H2 */
+  --font-h2-family: var(--font-geist);
+  --font-h2-weight: 700;
+  --font-h2-size: 32px;
+  --font-h2-line-height: normal;
+  --font-h2-letter-spacing: -0.04em;
 
   /* H3 */
   --font-h3-family: var(--font-geist);
@@ -101,6 +116,7 @@ a {
 }
 
 .page {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -110,7 +126,58 @@ a {
   width: 100%;
   max-width: var(--page-width);
   margin-inline: auto;
-  padding-inline: clamp(1.25rem, 5vw, 4.5rem);
+  padding-inline: var(--page-padding);
+}
+
+/* Fixed decorative background: a 100x67 character grid traced from a Figma
+   text layer. Pinned flush to the viewport's true bottom-right corner (not
+   the page's own margins), starting from where the grid's second column
+   begins, so it spans from there to the far edge of the page. Sized purely
+   from that width, so its aspect ratio stays locked at any window height
+   instead of being squashed to fit. */
+.ascii-art {
+  --ascii-cols: 100;
+  --ascii-rows: 67;
+  /* The Figma frame this grid was traced from: W 857 x H 583 at the 1440
+     design width, with "Clip content" on. Used to keep the character cells
+     at their real (near-square) aspect ratio instead of a generic guess. */
+  --ascii-box-w: 857;
+  --ascii-box-h: 583;
+  /* One of the three equal columns inside the page's centered content box. */
+  --ascii-col-width: calc(
+    (min(100vw, var(--page-width)) - 2 * var(--page-padding) - 2 * var(--grid-3-gutter)) / 3
+  );
+  /* Empty space outside the centered content box once the viewport exceeds
+     --page-width; zero below that. */
+  --ascii-left-inset: calc((100vw - min(100vw, var(--page-width))) / 2);
+  /* Viewport-relative x-position where the grid's second column starts. */
+  --ascii-left: calc(
+    var(--ascii-left-inset) + var(--page-padding) + var(--ascii-col-width) + var(--grid-3-gutter)
+  );
+  --ascii-col-px: calc((100vw - var(--ascii-left)) / var(--ascii-cols));
+  opacity: 50%;
+  position: fixed;
+  left: var(--ascii-left);
+  right: 0;
+  bottom: 0;
+  aspect-ratio: var(--ascii-box-w) / var(--ascii-box-h);
+  z-index: -1;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  white-space: pre;
+  font-family: "Courier New", ui-monospace, monospace;
+  color: var(--color-dark-grey);
+  /* 0.6 approximates this monospace stack's character-advance-to-font-size
+     ratio, so the 100-column grid fills the available width exactly. */
+  font-size: calc(var(--ascii-col-px) / 0.6);
+  /* Explicit px line-height (not a unitless multiplier) so 67 rows stack up
+     to exactly match the frame's height ratio, rather than the font's own
+     line metrics. */
+  line-height: calc(
+    var(--ascii-col-px) * var(--ascii-box-h) * var(--ascii-cols) / (var(--ascii-box-w) * var(--ascii-rows))
+  );
 }
 
 /* Nav */
@@ -170,7 +237,8 @@ a {
 }
 
 /* Title: 192px at the 1440px design width, scaling down on narrower viewports */
-.headline {
+.headline,
+.section-title {
   margin: 0;
   font-family: var(--font-title-family);
   font-weight: var(--font-title-weight);
@@ -348,4 +416,184 @@ a {
   font-weight: var(--font-h6-weight);
   font-size: var(--font-h6-size);
   letter-spacing: var(--font-h6-letter-spacing);
+}
+
+/* Work */
+.work {
+  display: flex;
+  flex-direction: column;
+  gap: 96px;
+  margin-top: var(--section-gap);
+}
+
+.work-cards {
+  display: flex;
+  gap: 41px;
+}
+
+.work-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.work-card-image {
+  width: 100%;
+  aspect-ratio: 628 / 405;
+  background: #d9d9d9;
+}
+
+.work-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.work-card-title {
+  margin: 0;
+  font-family: var(--font-h2-family);
+  font-weight: var(--font-h2-weight);
+  font-size: var(--font-h2-size);
+  line-height: var(--font-h2-line-height);
+  letter-spacing: var(--font-h2-letter-spacing);
+}
+
+.work-card-description {
+  margin: 0;
+  font-family: var(--font-h6-family);
+  font-weight: var(--font-h6-weight);
+  font-size: var(--font-h6-size);
+  line-height: var(--font-h6-line-height);
+  letter-spacing: var(--font-h6-letter-spacing);
+}
+
+/* Timeline */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 96px;
+  margin-top: var(--section-gap);
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+}
+
+.timeline-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 72px;
+}
+
+.timeline-row-content {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.timeline-year {
+  flex: 0 0 405px;
+  margin: 0;
+  color: var(--color-neutral-grey);
+  font-family: var(--font-subtitle-family);
+  font-weight: var(--font-subtitle-weight);
+  font-size: clamp(1.875rem, 8.4375vw - 1.6875px, 7.5rem);
+  line-height: 1.05;
+  letter-spacing: var(--font-subtitle-letter-spacing);
+  font-optical-sizing: auto;
+  font-variation-settings: var(--font-subtitle-variation);
+}
+
+.timeline-description {
+  flex: 1 1 851px;
+  margin: 0;
+  color: var(--color-white);
+  font-family: var(--font-h2-family);
+  font-weight: var(--font-h2-weight);
+  font-size: clamp(1.25rem, 1rem + 1vw, var(--font-h2-size));
+  line-height: var(--font-h2-line-height);
+  letter-spacing: var(--font-h2-letter-spacing);
+}
+
+.timeline-divider {
+  width: 100%;
+  height: 0;
+  margin-left: auto;
+  max-width: 851px;
+  border-top: 1px solid var(--color-dark-grey);
+}
+
+/* About */
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 96px;
+  margin-top: var(--section-gap);
+  padding-bottom: 128px;
+}
+
+.about-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+.about-text {
+  flex: 1 1 851px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  color: var(--color-white);
+  font-family: var(--font-h4-family);
+  font-weight: var(--font-h4-weight);
+  font-size: var(--font-h4-size);
+  line-height: var(--font-h4-line-height);
+  letter-spacing: var(--font-h4-letter-spacing);
+}
+
+.about-text p {
+  margin: 0;
+}
+
+.about-text strong {
+  font-weight: 800;
+}
+
+.about-picture {
+  flex: 1 1 406px;
+  width: 100%;
+  aspect-ratio: 406 / 405;
+  background: #d9d9d9;
+}
+
+/* Below the desktop design width, stack the two/three-column rows */
+@media (max-width: 900px) {
+  .work-cards {
+    flex-direction: column;
+  }
+
+  .timeline-row-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .timeline-year,
+  .timeline-description {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .timeline-divider {
+    max-width: 100%;
+  }
+
+  .about-content {
+    flex-direction: column;
+  }
 }
