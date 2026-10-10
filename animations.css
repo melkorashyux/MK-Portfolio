@@ -1,0 +1,328 @@
+/* Page animations (see animations.js). */
+
+/* Held hidden until animations.js has split the text and set start states. */
+html.anim-pending :is(.nav, .hero, .ascii-art) {
+  opacity: 0;
+}
+
+.a-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Each word clips its own content, extended past the box so Fraunces'
+   ascenders and descenders survive the tight 0.9167 line-height. */
+.a-mask {
+  clip-path: inset(
+    calc(-1 * var(--mask-clip-top, 0.35em)) -0.15em calc(-1 * var(--mask-clip-bottom, 0.3em)) -0.15em
+  );
+}
+
+.a-inner {
+  display: inline-block;
+  transform-origin: 0 100%;
+}
+
+/* ---------- Control panel ---------- */
+
+.ac-toggle,
+.ac-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1000;
+  font-family: var(--font-geist);
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  color: var(--color-light-gray);
+}
+
+.ac-toggle {
+  padding: 10px 18px;
+  border: 1px solid var(--color-dark-grey);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-background) 85%, transparent);
+  backdrop-filter: blur(12px);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.ac-toggle:hover {
+  color: var(--color-white);
+  border-color: var(--color-neutral-grey);
+}
+
+.ac-panel {
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  width: min(340px, calc(100vw - 32px));
+  border: 1px solid var(--color-dark-grey);
+  border-radius: 16px;
+  background: color-mix(in srgb, #1c1c1c 92%, transparent);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 48px rgb(0 0 0 / 0.4);
+  overflow: hidden;
+}
+
+.ac-toggle[hidden],
+.ac-panel[hidden] {
+  display: none;
+}
+
+.ac-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 12px 10px 16px;
+}
+
+.ac-head strong {
+  color: var(--color-white);
+  font-size: 15px;
+}
+
+.ac-count {
+  color: var(--color-accent);
+}
+
+.ac-close {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-neutral-grey);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ac-close:hover {
+  background: var(--color-dark-grey);
+  color: var(--color-white);
+}
+
+.ac-actions {
+  display: flex;
+  gap: 6px;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid #333;
+}
+
+.ac-btn {
+  flex: 1;
+  padding: 8px 6px;
+  border: 1px solid var(--color-dark-grey);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ac-btn:hover {
+  border-color: var(--color-neutral-grey);
+  color: var(--color-white);
+}
+
+.ac-btn-primary {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-white);
+}
+
+.ac-btn-primary:hover {
+  border-color: #ff6a1f;
+  background: #ff6a1f;
+}
+
+.ac-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ac-section {
+  border-bottom: 1px solid #333;
+}
+
+.ac-section summary {
+  padding: 12px 16px;
+  color: var(--color-white);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ac-subhead {
+  margin: 4px 16px 10px;
+  padding-top: 10px;
+  border-top: 1px solid #2c2c2c;
+  color: var(--color-neutral-grey);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ac-section summary + .ac-subhead {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.ac-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 0 16px 12px;
+}
+
+.ac-row-range .ac-range {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.ac-row-bezier .ac-bezier {
+  grid-column: 1 / -1;
+}
+
+.ac-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-light-gray);
+}
+
+.ac-reset {
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ac-reset[hidden] {
+  display: none;
+}
+
+.ac-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ac-unit {
+  min-width: 2.2em;
+  color: var(--color-neutral-grey);
+}
+
+.ac-num,
+.ac-text,
+.ac-select {
+  padding: 4px 6px;
+  border: 1px solid var(--color-dark-grey);
+  border-radius: 6px;
+  background: #151515;
+  color: var(--color-white);
+  font: inherit;
+}
+
+.ac-num {
+  width: 64px;
+  text-align: right;
+}
+
+.ac-text {
+  width: 140px;
+  font-family: "Courier New", ui-monospace, monospace;
+}
+
+.ac-num:focus,
+.ac-text:focus,
+.ac-select:focus {
+  outline: 1px solid var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.ac-range,
+.ac-check {
+  accent-color: var(--color-accent);
+}
+
+.ac-range {
+  width: 100%;
+  margin: 0;
+}
+
+.ac-check {
+  width: 16px;
+  height: 16px;
+}
+
+.ac-bezier {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ac-curve {
+  width: 100%;
+  max-width: 220px;
+  align-self: center;
+  touch-action: none;
+}
+
+.ac-curve-frame {
+  fill: #151515;
+  stroke: var(--color-dark-grey);
+}
+
+.ac-curve-arm {
+  stroke: var(--color-neutral-grey);
+  stroke-width: 1;
+}
+
+.ac-curve-path {
+  fill: none;
+  stroke: var(--color-white);
+  stroke-width: 2.5;
+}
+
+.ac-curve-handle {
+  fill: var(--color-accent);
+  stroke: var(--color-white);
+  stroke-width: 2;
+  cursor: grab;
+}
+
+.ac-curve-handle:active {
+  cursor: grabbing;
+}
+
+.ac-bezier-inputs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.ac-bezier-inputs .ac-num {
+  width: 100%;
+}
+
+.ac-note {
+  margin: 0;
+  padding: 10px 16px 14px;
+  color: var(--color-neutral-grey);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.ac-note a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}

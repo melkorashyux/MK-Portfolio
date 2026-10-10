@@ -15,6 +15,19 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="animations.css" />
+  <script>
+    /* Animation boot: runs before first paint so the hero can start hidden
+       instead of flashing. Skipped for reduced motion. See animations.js. */
+    (function () {
+      var d = document.documentElement;
+      var forced = new URLSearchParams(location.search).get("motion") === "force";
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches && !forced) return;
+      d.dataset.anim = "";
+      d.classList.add("anim-pending");
+      setTimeout(function () { d.classList.remove("anim-pending"); }, 4000);
+    })();
+  </script>
 </head>
 <body>
   <pre class="ascii-art" aria-hidden="true">
@@ -263,5 +276,6 @@
   </div>
 
   <script src="script.js"></script>
+  <script src="animations.js"></script>
 </body>
 </html>
