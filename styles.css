@@ -527,7 +527,6 @@ html.bg-style-tone body {
 .nav-links a:focus-visible {
   color: var(--color-accent);
   font-weight: 700;
-  text-decoration: underline;
 }
 
 /* Hero */
@@ -700,13 +699,151 @@ html.bg-style-tone body {
 .work-card-link:hover,
 .work-card-link:focus-visible {
   color: var(--color-accent);
-  text-decoration: underline;
 }
 
-/* After its reveal, the link's words sit in inline-block spans
-   (animations.js), which an underline on the link doesn't reach. */
-.work-card-link:is(:hover, :focus-visible) * {
-  text-decoration: underline;
+/* Drawn underline for nav and project links: grows in from the left on
+   hover, then carries on out to the right when the pointer leaves. A
+   pseudo-element rather than text-decoration, so it can animate and also
+   runs under the word spans the reveal animation leaves behind. */
+.nav-links a,
+.nav-dock a,
+.work-card-link {
+  position: relative;
+}
+
+.nav-links a::before,
+.nav-dock a::before,
+.work-card-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.1em;
+  height: max(1px, 0.07em);
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.nav-links a:is(:hover, :focus-visible)::before,
+.nav-dock a:is(:hover, :focus-visible, [aria-current])::before,
+.work-card-link:is(:hover, :focus-visible)::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-links a::before,
+  .nav-dock a::before,
+  .work-card-link::after {
+    transition: none;
+  }
+}
+
+/* Docked nav (animations.js): once the header has scrolled away, a copy of
+   the links slides in from the right as a vertical spine. Set
+   html[data-nav-dock="off"] to let the nav just scroll away instead. */
+.nav-dock {
+  position: fixed;
+  right: var(--dock-offset, 32px);
+  z-index: 50;
+  display: flex;
+  font-family: var(--font-h4-family);
+  font-weight: var(--font-h4-weight);
+  font-size: var(--font-h4-size);
+  letter-spacing: var(--font-h4-letter-spacing);
+  pointer-events: none;
+}
+
+html[data-nav-dock="off"] .nav-dock,
+html:not([data-nav-dock]) .nav-dock {
+  display: none;
+}
+
+.nav-dock a {
+  opacity: 0;
+  transform: translateX(calc(100% + var(--dock-offset, 32px) + 24px));
+  transition:
+    transform var(--dock-duration, 600ms) var(--dock-easing, ease),
+    opacity var(--dock-duration, 600ms) var(--dock-easing, ease),
+    color 0.15s ease;
+}
+
+html.nav-docked .nav-dock {
+  pointer-events: auto;
+}
+
+html.nav-docked .nav-dock a {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i, 0) * var(--dock-stagger, 40ms)), calc(var(--i, 0) * var(--dock-stagger, 40ms)), 0s;
+}
+
+.nav-dock a:is(:hover, :focus-visible, [aria-current]) {
+  color: var(--color-accent);
+}
+
+/* The row turned on its side, reading top to bottom. The
+   underline moves to the glyphs' baseline side, which faces left here. */
+html[data-nav-dock="spine"] .nav-dock {
+  top: 50%;
+  translate: 0 -50%;
+  writing-mode: vertical-rl;
+  gap: 32px;
+}
+
+html[data-nav-dock="spine"] .nav-dock a::before {
+  inset: 0 auto 0 -0.1em;
+  width: max(1px, 0.07em);
+  height: auto;
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+
+html[data-nav-dock="spine"] .nav-dock a:is(:hover, :focus-visible, [aria-current])::before {
+  transform: scaleY(1);
+  transform-origin: top;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-dock,
+  .nav-dock a {
+    transition-duration: 0s !important;
+  }
+}
+
+/* No room beside the content on narrow screens: a frosted pill top-right. */
+@media (max-width: 900px) {
+  html:not([data-nav-dock="off"]) .nav-dock {
+    top: 0.75rem;
+    right: 0.75rem;
+    translate: none;
+    writing-mode: horizontal-tb;
+    flex-direction: row;
+    gap: 16px;
+    padding: 8px 16px;
+    border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--page-bg, var(--color-white)) 72%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-size: 15px;
+  }
+
+  html[data-nav-dock="spine"] .nav-dock a::before {
+    inset: auto 0 -0.1em 0;
+    width: auto;
+    height: max(1px, 0.07em);
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+
+  html[data-nav-dock="spine"] .nav-dock a:is(:hover, :focus-visible, [aria-current])::before {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
 }
 
 /* Timeline */
@@ -765,7 +902,8 @@ html.bg-style-tone body {
   height: 0;
   margin-left: auto;
   max-width: 851px;
-  border-top: 1px solid var(--color-light-gray);
+  border-top: 1px solid var(--color-dark-grey);
+  opacity: 25%;
 }
 
 /* About */

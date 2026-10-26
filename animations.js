@@ -6,7 +6,7 @@
    "Copy settings" puts a new DEFAULTS block on the clipboard to paste here. */
 (() => {
   const root = document.documentElement;
-  const SHOW_CONTROLS = true;
+  const SHOW_CONTROLS = false;
   const STORE_KEY = "anim-config";
   const MOTION = "anim" in root.dataset; // set by the boot script in <head>
 
@@ -14,6 +14,14 @@
     playback: {
       speed: 0.8,
       autoReplay: true,
+    },
+    // Once the header scrolls away, the nav links dock on the right
+    nav: {
+      dock: "spine", // off | spine
+      offset: 32, // px from the right edge
+      duration: 600, // slide in/out
+      easing: [0.16, 1, 0.3, 1],
+      stagger: 40, // ms between links as they slide in
     },
     background: {
       style: "paper", // plain | grid | dots | paper | watermark | tone | gradient
@@ -204,6 +212,11 @@
   function applyVars() {
     root.style.setProperty("--mask-clip-top", `${C.mask.clipTop}em`);
     root.style.setProperty("--mask-clip-bottom", `${C.mask.clipBottom}em`);
+    root.dataset.navDock = C.nav.dock;
+    root.style.setProperty("--dock-offset", `${C.nav.offset}px`);
+    root.style.setProperty("--dock-duration", `${C.nav.duration}ms`);
+    root.style.setProperty("--dock-easing", ease(C.nav.easing));
+    root.style.setProperty("--dock-stagger", `${C.nav.stagger}ms`);
     root.style.setProperty("--ascii-scale", C.ascii.scale);
     root.style.setProperty("--ascii-opacity", `${C.ascii.opacity}%`);
     const G = C.gradient;
@@ -926,6 +939,24 @@
       ],
     },
     {
+      title: "Navigation",
+      rows: [
+        {
+          path: "nav.dock",
+          label: "Docked nav",
+          type: "select",
+          options: {
+            off: "Off (scrolls away)",
+            spine: "Vertical spine",
+          },
+        },
+        { path: "nav.offset", label: "Edge offset", min: 0, max: 120, step: 1, unit: "px" },
+        { path: "nav.duration", label: "Slide duration", min: 0, max: 2000, step: 10, unit: "ms" },
+        { path: "nav.easing", label: "Slide easing", type: "bezier" },
+        { path: "nav.stagger", label: "Link stagger", min: 0, max: 200, step: 5, unit: "ms" },
+      ],
+    },
+    {
       title: "Background",
       rows: [
         {
@@ -1212,7 +1243,7 @@
   let replayTimer = 0;
   let onChanged = () => {};
   let rerenderPanel = () => {};
-  const LIVE = ["background", "grid", "dots", "paper", "watermark", "tone", "gradient"];
+  const LIVE = ["nav", "background", "grid", "dots", "paper", "watermark", "tone", "gradient"];
   const LIVE_PATHS = ["ascii.scale", "ascii.opacity"];
 
   function changed(path) {
@@ -1602,8 +1633,53 @@
     document.body.append(toggle, panel);
   }
 
+  /* ---------- Docked nav ----------
+     A fixed copy of the nav links that slides in from the right once the
+     header has scrolled out of view, and marks the section you're in.
+     The style itself (nav.dock) is pure CSS, keyed off html[data-nav-dock]. */
+
+  function dockNav() {
+    const header = $(".nav");
+    const source = $$(".nav-links a");
+    if (!header || !source.length) return;
+
+    const links = source.map((a, i) => {
+      const link = make("a", { href: a.getAttribute("href") }, a.textContent);
+      link.style.setProperty("--i", i);
+      return link;
+    });
+    const dock = make("nav", { class: "nav-dock", "aria-label": "Sections" }, ...links);
+    document.body.append(dock);
+
+    new IntersectionObserver(([entry]) => {
+      const docked = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+      root.classList.toggle("nav-docked", docked);
+      dock.inert = !docked;
+    }).observe(header);
+    dock.inert = true;
+
+    // The section crossing the middle of the viewport is the current one.
+    const byId = new Map(links.map((l) => [l.getAttribute("href").slice(1), l]));
+    const spy = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const link = byId.get(e.target.id);
+          if (!link) continue;
+          if (e.isIntersecting) link.setAttribute("aria-current", "location");
+          else link.removeAttribute("aria-current");
+        }
+      },
+      { rootMargin: "-50% 0px -50% 0px" }
+    );
+    for (const id of byId.keys()) {
+      const section = document.getElementById(id);
+      if (section) spy.observe(section);
+    }
+  }
+
   async function init() {
     applyVars();
+    dockNav();
     if (SHOW_CONTROLS) buildPanel();
     if (!MOTION) return;
     await Promise.race([document.fonts.ready, wait(1500)]);
