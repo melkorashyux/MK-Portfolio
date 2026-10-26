@@ -15,7 +15,102 @@
       speed: 0.8,
       autoReplay: true,
     },
+    background: {
+      style: "paper", // plain | grid | dots | paper | watermark | tone | gradient
+    },
+    // 1. The layout grid drawn as hairlines
+    grid: {
+      columns: "3", // 3 | 12 | both
+      color: "#171717",
+      opacity: 0.1,
+      weight: 1, // px
+      dashed: false,
+      rules: true, // horizontal rules
+      matchHeadline: true, // rule spacing = the hero headline's line height...
+      ruleSpacing: 175, // ...or this, in px
+      ruleOffset: 0, // px, shifts the rules from the headline's top
+      drawIn: true, // lines draw down on load and on Replay
+      drawDuration: 1400,
+      drawStagger: 60,
+    },
+    // 2. Halftone dot field
+    dots: {
+      color: "#cc0000",
+      opacity: 0.55,
+      spacing: 14, // px between dot centers
+      maxSize: 6, // px diameter where the field is densest
+      minSize: 0,
+      origin: "bottom-right", // where the field is densest
+      reach: 0.75, // share of the viewport diagonal the dots fade out over
+      curve: 1.6, // >1 keeps the field tight to the origin, <1 spreads it
+      cursorRadius: 160, // px
+      cursorStrength: 0.7, // how much dots swell near the cursor; 0 = off
+    },
+    // 3. Paper wash: the better gradient
+    paper: {
+      tone: "#f5f2ee", // page color
+      tint: "#cc0000",
+      intensity: 29, // % of the tint at the center of the light, at the top...
+      endIntensity: 20, // ...and once it reaches the closing CTA
+      size: 83, // vw
+      core: 12, // % of the radius that stays at full intensity
+      offsetX: 60, // px from the center of "PRODUCT"
+      offsetY: -60,
+      travel: true, // the light moves down to the CTA as you scroll...
+      endOffsetX: 0, // ...ending this far (px) from "Let's design something"
+      endOffsetY: 0,
+      follow: 0.12, // how fast the light catches up per frame; 1 = locked
+      mottle: 0.06, // large soft unevenness in the paper
+      mottleScale: 0.004, // noise frequency; lower = bigger blotches
+      texture: 0.05, // fine paper-fiber opacity
+      dither: 0.15, // noise that keeps the light's falloff from banding
+      drift: false, // slow wandering on top of the scroll position
+      speed: 1,
+    },
+    // 4. Giant outline type behind each section
+    watermark: {
+      content: "numbers", // numbers | names
+      color: "#171717",
+      opacity: 0.15,
+      stroke: 1.5, // px
+      size: 40, // vw
+      align: "right",
+      offset: -4, // vw from the page edge; negative crops it
+      top: -4, // vw from the section's top
+      lag: 0.2, // 0 = scrolls with the page; higher drifts behind it
+    },
+    // 5. Flat background that changes color per section
+    tone: {
+      // A palette variable from styles.css, or a custom hex
+      heroBg: "var(--color-white)",
+      heroInk: "var(--color-ink)",
+      workBg: "var(--color-white)",
+      workInk: "var(--color-ink)",
+      timelineBg: "var(--color-white)",
+      timelineInk: "var(--color-ink)",
+      aboutBg: "var(--color-light-gray)",
+      aboutInk: "var(--color-ink)",
+      contactBg: "var(--color-ink)",
+      contactInk: "var(--color-white)",
+      trigger: 50, // % of viewport height a section's top must pass
+      duration: 700,
+      easing: [0.65, 0, 0.35, 1],
+    },
+    // The original grainy gradient, kept for comparison
+    gradient: {
+      color: "#cc0000", // the blobs' tint; the Accent
+      opacity: 0.5, // overall visibility of the gradient layer
+      blur: 1, // multiplier on how soft the blob edges are
+      size: 1, // multiplier on the blobs' size
+      grain: 0.18, // film-grain overlay opacity
+      grainMatch: true, // grain takes the gradient color...
+      grainColor: "#171717", // ...or this one when grainMatch is off
+      speed: 1, // multiplier on how fast the blobs drift
+      animate: true, // blobs drift and grain flickers vs. a static frame
+    },
     ascii: {
+      scale: 0.5, // share of the space right of the second column's start
+      opacity: 50, // %
       delay: 0,
       duration: 1200,
       band: 20, // rows of scrambled characters on the reveal front
@@ -34,7 +129,7 @@
     },
     hero: {
       delay: 1010,
-      blockStagger: 265, // between eyebrow, headline, subtext, button, clock
+      blockStagger: 265, // between eyebrow, headline, subtext, button
       navStagger: 140,
       navDistance: 20, // px the nav drops in from
       ctaDistance: 24, // px the button rises from
@@ -109,6 +204,18 @@
   function applyVars() {
     root.style.setProperty("--mask-clip-top", `${C.mask.clipTop}em`);
     root.style.setProperty("--mask-clip-bottom", `${C.mask.clipBottom}em`);
+    root.style.setProperty("--ascii-scale", C.ascii.scale);
+    root.style.setProperty("--ascii-opacity", `${C.ascii.opacity}%`);
+    const G = C.gradient;
+    root.style.setProperty("--bg-color", G.color);
+    root.style.setProperty("--bg-opacity", G.opacity);
+    root.style.setProperty("--bg-blur", G.blur);
+    root.style.setProperty("--bg-scale", G.size);
+    root.style.setProperty("--bg-grain-color", G.grainMatch ? G.color : G.grainColor);
+    root.style.setProperty("--bg-grain", G.grain);
+    root.style.setProperty("--bg-duration", `${36 / G.speed}s`);
+    root.classList.toggle("bg-static", !G.animate);
+    backgrounds.apply();
   }
 
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
@@ -145,11 +252,16 @@
               frag.append(" ");
               continue;
             }
-            const word = document.createElement("span");
-            word.className = "a-word";
-            word.textContent = part;
-            frag.append(word);
-            words.push(word);
+            // Hyphenated words get one span per piece with a <wbr> between,
+            // so they can wrap after the hyphen just like the restored text.
+            part.split(/(?<=-)(?=[^-])/).forEach((piece, i) => {
+              if (i) frag.append(document.createElement("wbr"));
+              const word = document.createElement("span");
+              word.className = "a-word";
+              word.textContent = piece;
+              frag.append(word);
+              words.push(word);
+            });
           }
           child.replaceWith(frag);
         } else if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== "BR") {
@@ -410,7 +522,6 @@
       t += hc.blockStagger;
     }
     rise(hero, $(".cta"), t, m.duration, e, hc.ctaDistance);
-    fade(hero, $("#clock"), t + hc.blockStagger, m.duration);
 
     for (const el of $$(".section-title")) scrollGroup(el, (g) => maskWords(g, el, 0));
 
@@ -420,6 +531,7 @@
         wipe(g, $(".work-card-image", card), d, s.wipeDuration, se);
         maskWords(g, $(".work-card-title", card), d + s.descDelay);
         maskWords(g, $(".work-card-description", card), d + s.descDelay * 2);
+        maskWords(g, $(".work-card-link", card), d + s.descDelay * 3);
       })
     );
 
@@ -469,13 +581,339 @@
     scrollGroup($(".about-picture"), (g) =>
       wipe(g, $(".about-picture"), 0, s.wipeDuration, se)
     );
+    for (const el of $$(".contact-cta-line")) scrollGroup(el, (g) => maskWords(g, el, 0));
 
     return hero;
   }
 
   function replay() {
     if (MOTION) play(build());
+    backgrounds.replay();
   }
+
+  /* ---------- Backgrounds ----------
+     One style at a time, chosen by background.style. Each style's values
+     apply live; apply() runs on every panel change. */
+
+  const STYLES = ["plain", "grid", "dots", "paper", "watermark", "tone", "gradient"];
+  const TONE_ZONES = ["hero", "work", "timeline", "about", "contact"];
+
+  const backgrounds = (() => {
+    let active = null;
+    let frame = 0;
+    const set = (k, v) => root.style.setProperty(k, v);
+
+    /* 1. Grid */
+    const grid = $(".bg-grid");
+    let gridKey = "";
+
+    function buildGrid() {
+      const key = C.grid.columns;
+      if (key === gridKey) return;
+      gridKey = key;
+      const sets = key === "both" ? ["12", "3"] : [key];
+      grid.replaceChildren(
+        ...sets.map((n) =>
+          make(
+            "div",
+            { class: "bg-grid-cols", "data-cols": n },
+            ...Array.from({ length: +n }, () => make("div", { class: "bg-grid-col" }))
+          )
+        ),
+        make("div", { class: "bg-grid-rules" })
+      );
+    }
+
+    // Rules start at the headline's top and repeat at its line height, so
+    // each one sits on a line of PRODUCT / DESIGNER & / BUILDER.
+    function placeRules() {
+      const g = C.grid;
+      const headline = $(".headline");
+      const top = headline.getBoundingClientRect().top - $(".page").getBoundingClientRect().top;
+      const spacing = g.matchHeadline ? parseFloat(getComputedStyle(headline).lineHeight) : g.ruleSpacing;
+      set("--grid-rule-spacing", `${spacing}px`);
+      set("--grid-rule-offset", `${(((top + g.ruleOffset) % spacing) + spacing) % spacing}px`);
+    }
+
+    function applyGrid() {
+      const g = C.grid;
+      buildGrid();
+      set("--grid-color", g.color);
+      set("--grid-opacity", g.opacity);
+      set("--grid-weight", `${g.weight}px`);
+      set("--grid-line-style", g.dashed ? "dashed" : "solid");
+      $(".bg-grid-rules", grid).hidden = !g.rules;
+      placeRules();
+    }
+
+    function drawGrid() {
+      if (!MOTION || !C.grid.drawIn) return;
+      const speed = C.playback.speed;
+      $$(".bg-grid-col", grid).forEach((col, i) =>
+        col.animate([{ transform: "scaleY(0)" }, { transform: "scaleY(1)" }], {
+          duration: C.grid.drawDuration / speed,
+          delay: (i * C.grid.drawStagger) / speed,
+          easing: ease(C.scroll.easing),
+          fill: "backwards",
+        })
+      );
+      $(".bg-grid-rules", grid).animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: C.grid.drawDuration / speed,
+        delay: C.grid.drawDuration / 2 / speed,
+        fill: "backwards",
+      });
+    }
+
+    /* 2. Dots */
+    const canvas = $(".bg-dots");
+    const ctx = canvas.getContext("2d");
+    const mouse = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4 };
+
+    function sizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = innerWidth * dpr;
+      canvas.height = innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function drawDots() {
+      const d = C.dots;
+      const w = innerWidth;
+      const h = innerHeight;
+      const [ox, oy] = {
+        "top-left": [0, 0],
+        "top-right": [w, 0],
+        "bottom-left": [0, h],
+        "bottom-right": [w, h],
+        center: [w / 2, h / 2],
+      }[d.origin];
+      const reach = Math.hypot(w, h) * d.reach;
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalAlpha = d.opacity;
+      ctx.fillStyle = d.color;
+      ctx.beginPath();
+      const step = Math.max(4, d.spacing);
+      for (let y = step / 2; y < h; y += step) {
+        for (let x = step / 2; x < w; x += step) {
+          const t = Math.max(0, 1 - Math.hypot(x - ox, y - oy) / reach);
+          let r = d.minSize + (d.maxSize - d.minSize) * t ** d.curve;
+          const m = Math.hypot(x - mouse.x, y - mouse.y);
+          if (m < d.cursorRadius) r += d.maxSize * d.cursorStrength * (1 - m / d.cursorRadius) ** 2;
+          r = Math.min(r, step) / 2;
+          if (r < 0.25) continue;
+          ctx.moveTo(x + r, y);
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+        }
+      }
+      ctx.fill();
+    }
+
+    // The cursor's influence eases toward the pointer instead of jumping.
+    function dotsLoop() {
+      frame = 0;
+      mouse.x += (mouse.tx - mouse.x) * 0.18;
+      mouse.y += (mouse.ty - mouse.y) * 0.18;
+      drawDots();
+      if (Math.abs(mouse.tx - mouse.x) + Math.abs(mouse.ty - mouse.y) > 0.5) {
+        frame = requestAnimationFrame(dotsLoop);
+      }
+    }
+
+    addEventListener("pointermove", (e) => {
+      mouse.tx = e.clientX;
+      mouse.ty = e.clientY;
+      if (mouse.x < -1e3) Object.assign(mouse, { x: e.clientX, y: e.clientY });
+      if (active === "dots" && C.dots.cursorStrength > 0 && !frame) frame = requestAnimationFrame(dotsLoop);
+    });
+    document.addEventListener("pointerleave", () => {
+      mouse.tx = mouse.ty = -1e4;
+      Object.assign(mouse, { x: -1e4, y: -1e4 });
+      if (active === "dots") drawDots();
+    });
+
+    /* 3. Paper */
+    const light = { x: 0, y: 0, i: 0, ready: false };
+    let lightFrame = 0;
+
+    function applyPaper() {
+      const p = C.paper;
+      set("--paper-tint", p.tint);
+      set("--paper-size", `${p.size}vw`);
+      set("--paper-core", `${p.core}%`);
+      set("--paper-mottle", p.mottle);
+      set("--paper-texture", p.texture);
+      set("--paper-dither", p.dither);
+      set("--paper-duration", `${40 / p.speed}s`);
+      $("#paper-mottle feTurbulence").setAttribute("baseFrequency", p.mottleScale);
+      root.classList.toggle("paper-static", !p.drift);
+      light.ready = false; // jump straight to the new target
+      moveLight();
+    }
+
+    const center = (el) => {
+      const r = el.getBoundingClientRect();
+      return [r.left + r.width / 2, r.top + r.height / 2];
+    };
+
+    // Where the light should be right now, in viewport px. It starts on
+    // "PRODUCT" and, with travel on, slides to the CTA in step with the
+    // scroll, so it's behind the headline at the top of the page and behind
+    // "Let's design something" at the bottom.
+    function lightTarget() {
+      const p = C.paper;
+      const [sx, sy] = center($(".headline .accent"));
+      const start = [sx + p.offsetX, sy + p.offsetY];
+      if (!p.travel) return [...start, p.intensity];
+      const max = document.documentElement.scrollHeight - innerHeight;
+      const t = max > 0 ? Math.min(1, scrollY / max) : 0;
+      // Both anchors in page coordinates, then back to the viewport.
+      const [ex, ey] = center($(".contact-cta-line"));
+      const a = [start[0], start[1] + scrollY];
+      const b = [ex + p.endOffsetX, ey + scrollY + p.endOffsetY];
+      return [
+        a[0] + (b[0] - a[0]) * t,
+        a[1] + (b[1] - a[1]) * t - scrollY,
+        p.intensity + (p.endIntensity - p.intensity) * t,
+      ];
+    }
+
+    function moveLight() {
+      lightFrame = 0;
+      if (active !== "paper") return;
+      const [tx, ty, ti] = lightTarget();
+      const k = light.ready && MOTION ? C.paper.follow : 1;
+      light.x += (tx - light.x) * k;
+      light.y += (ty - light.y) * k;
+      light.i += (ti - light.i) * k;
+      light.ready = true;
+      set("--paper-x", `${light.x}px`);
+      set("--paper-y", `${light.y}px`);
+      set("--paper-intensity", `${light.i}%`);
+      if (Math.abs(tx - light.x) + Math.abs(ty - light.y) + Math.abs(ti - light.i) > 0.1) {
+        lightFrame = requestAnimationFrame(moveLight);
+      }
+    }
+
+    const queueLight = () => {
+      if (active === "paper" && !lightFrame) lightFrame = requestAnimationFrame(moveLight);
+    };
+
+    /* 4. Watermark */
+    const WM_SECTIONS = [
+      ["#work", "Work"],
+      ["#timeline", "Timeline"],
+      ["#about", "About"],
+      ["#contact", "Contact"],
+    ];
+
+    function applyWatermark() {
+      const w = C.watermark;
+      set("--wm-color", w.color);
+      set("--wm-opacity", w.opacity);
+      set("--wm-stroke", `${w.stroke}px`);
+      set("--wm-size", w.size);
+      set("--wm-offset", w.offset);
+      set("--wm-top", w.top);
+      WM_SECTIONS.forEach(([sel, name], i) => {
+        const section = $(sel);
+        let mark = $(":scope > .bg-watermark", section);
+        if (!mark) {
+          mark = make("span", { class: "bg-watermark", "aria-hidden": "true" });
+          section.classList.add("has-watermark");
+          section.prepend(mark);
+        }
+        mark.textContent = w.content === "names" ? name : String(i + 1).padStart(2, "0");
+        mark.dataset.align = w.align;
+      });
+      lagWatermarks();
+    }
+
+    function removeWatermarks() {
+      for (const mark of $$(".bg-watermark")) {
+        mark.parentElement.classList.remove("has-watermark");
+        mark.remove();
+      }
+    }
+
+    function lagWatermarks() {
+      const lag = MOTION ? C.watermark.lag : 0;
+      for (const mark of $$(".bg-watermark")) {
+        const top = mark.parentElement.getBoundingClientRect().top;
+        mark.style.transform = `translateY(${-(top - innerHeight / 2) * lag}px)`;
+      }
+    }
+
+    /* 5. Tone */
+    function applyTone() {
+      const t = C.tone;
+      const line = innerHeight * (t.trigger / 100);
+      let zone = TONE_ZONES[0];
+      for (const z of TONE_ZONES) {
+        const el = z === "hero" ? $(".hero") : $(`#${z}`);
+        if (el.getBoundingClientRect().top <= line) zone = z;
+      }
+      set("--tone-duration", `${t.duration}ms`);
+      set("--tone-easing", ease(t.easing));
+      set("--page-bg", t[`${zone}Bg`]);
+      set("--page-ink", t[`${zone}Ink`]);
+    }
+
+    /* Switching */
+    function apply() {
+      const style = C.background.style;
+      if (style !== active) {
+        for (const s of STYLES) root.classList.toggle(`bg-style-${s}`, s === style);
+        if (active === "watermark") removeWatermarks();
+        root.style.removeProperty("--page-bg");
+        root.style.removeProperty("--page-ink");
+        const switched = active !== null;
+        active = style;
+        if (style === "grid") {
+          applyGrid();
+          if (switched) drawGrid();
+        }
+      } else if (style === "grid") {
+        applyGrid();
+      }
+      if (style === "dots") {
+        sizeCanvas();
+        drawDots();
+      }
+      if (style === "paper") {
+        applyPaper();
+        set("--page-bg", C.paper.tone);
+      }
+      if (style === "watermark") applyWatermark();
+      if (style === "tone") applyTone();
+    }
+
+    addEventListener("scroll", () => {
+      queueLight();
+      if (active === "watermark") lagWatermarks();
+      if (active === "tone") applyTone();
+    }, { passive: true });
+
+    addEventListener("resize", () => {
+      queueLight();
+      if (active === "grid") placeRules();
+      if (active === "dots") {
+        sizeCanvas();
+        drawDots();
+      }
+      if (active === "watermark") lagWatermarks();
+    });
+
+    // The headline's line height is only final once Geist has loaded.
+    document.fonts.ready.then(() => {
+      if (active === "grid") placeRules();
+      queueLight();
+    });
+
+    return {
+      apply,
+      replay: () => active === "grid" && drawGrid(),
+    };
+  })();
 
   /* ---------- Control panel ---------- */
 
@@ -488,8 +926,171 @@
       ],
     },
     {
+      title: "Background",
+      rows: [
+        {
+          path: "background.style",
+          label: "Style",
+          type: "select",
+          options: {
+            plain: "Plain",
+            grid: "1 · Visible grid",
+            dots: "2 · Halftone dots",
+            paper: "3 · Paper wash",
+            watermark: "4 · Outline watermark",
+            tone: "5 · Tone shift",
+            gradient: "Grain gradient (old)",
+          },
+        },
+      ],
+    },
+    {
+      title: "Visible grid",
+      when: "grid",
+      rows: [
+        {
+          path: "grid.columns",
+          label: "Columns",
+          type: "select",
+          options: { 3: "3-column", 12: "12-column", both: "Both" },
+        },
+        { path: "grid.color", label: "Color", type: "color" },
+        { path: "grid.opacity", label: "Opacity", min: 0, max: 1, step: 0.01, unit: "" },
+        { path: "grid.weight", label: "Line weight", min: 0.5, max: 4, step: 0.5, unit: "px" },
+        { path: "grid.dashed", label: "Dashed", type: "toggle" },
+        { type: "heading", label: "Horizontal rules" },
+        { path: "grid.rules", label: "Show rules", type: "toggle" },
+        { path: "grid.matchHeadline", label: "Match headline line height", type: "toggle" },
+        { path: "grid.ruleSpacing", label: "Spacing (if not matched)", min: 8, max: 400, step: 1, unit: "px" },
+        { path: "grid.ruleOffset", label: "Offset", min: -200, max: 200, step: 1, unit: "px" },
+        { type: "heading", label: "Draw-in" },
+        { path: "grid.drawIn", label: "Draw in on load", type: "toggle" },
+        { path: "grid.drawDuration", label: "Duration", min: 100, max: 4000, step: 10, unit: "ms" },
+        { path: "grid.drawStagger", label: "Stagger", min: 0, max: 300, step: 5, unit: "ms" },
+      ],
+    },
+    {
+      title: "Halftone dots",
+      when: "dots",
+      rows: [
+        { path: "dots.color", label: "Color", type: "color" },
+        { path: "dots.opacity", label: "Opacity", min: 0, max: 1, step: 0.01, unit: "" },
+        { path: "dots.spacing", label: "Spacing", min: 4, max: 48, step: 1, unit: "px" },
+        { path: "dots.maxSize", label: "Max dot size", min: 0, max: 24, step: 0.5, unit: "px" },
+        { path: "dots.minSize", label: "Min dot size", min: 0, max: 12, step: 0.5, unit: "px" },
+        { type: "heading", label: "Falloff" },
+        {
+          path: "dots.origin",
+          label: "Densest at",
+          type: "select",
+          options: {
+            "bottom-right": "Bottom right",
+            "bottom-left": "Bottom left",
+            "top-right": "Top right",
+            "top-left": "Top left",
+            center: "Center",
+          },
+        },
+        { path: "dots.reach", label: "Reach", min: 0.1, max: 2, step: 0.05, unit: "×" },
+        { path: "dots.curve", label: "Curve", min: 0.2, max: 5, step: 0.1, unit: "" },
+        { type: "heading", label: "Cursor" },
+        { path: "dots.cursorRadius", label: "Radius", min: 20, max: 500, step: 5, unit: "px" },
+        { path: "dots.cursorStrength", label: "Strength", min: 0, max: 2, step: 0.05, unit: "" },
+      ],
+    },
+    {
+      title: "Paper wash",
+      when: "paper",
+      rows: [
+        { path: "paper.tone", label: "Paper color", type: "color" },
+        { type: "heading", label: "Light" },
+        { path: "paper.tint", label: "Color", type: "color" },
+        { path: "paper.intensity", label: "Intensity", min: 0, max: 60, step: 1, unit: "%" },
+        { path: "paper.size", label: "Size", min: 20, max: 200, step: 1, unit: "vw" },
+        { path: "paper.core", label: "Solid core", min: 0, max: 90, step: 1, unit: "%" },
+        { path: "paper.offsetX", label: "Offset from PRODUCT X", min: -800, max: 800, step: 5, unit: "px" },
+        { path: "paper.offsetY", label: "Offset from PRODUCT Y", min: -600, max: 600, step: 5, unit: "px" },
+        { type: "heading", label: "Scroll travel" },
+        { path: "paper.travel", label: "Travel to the CTA", type: "toggle" },
+        { path: "paper.endIntensity", label: "Intensity at the CTA", min: 0, max: 60, step: 1, unit: "%" },
+        { path: "paper.endOffsetX", label: "Offset from CTA X", min: -800, max: 800, step: 5, unit: "px" },
+        { path: "paper.endOffsetY", label: "Offset from CTA Y", min: -600, max: 600, step: 5, unit: "px" },
+        { path: "paper.follow", label: "Follow speed", min: 0.02, max: 1, step: 0.01, unit: "" },
+        { type: "heading", label: "Paper" },
+        { path: "paper.mottle", label: "Mottle", min: 0, max: 0.5, step: 0.01, unit: "" },
+        { path: "paper.mottleScale", label: "Mottle scale", min: 0.001, max: 0.02, step: 0.0005, unit: "" },
+        { path: "paper.texture", label: "Fibers", min: 0, max: 0.3, step: 0.005, unit: "" },
+        { path: "paper.dither", label: "Dither", min: 0, max: 0.5, step: 0.01, unit: "" },
+        { type: "heading", label: "Drift" },
+        { path: "paper.drift", label: "Drift", type: "toggle" },
+        { path: "paper.speed", label: "Drift speed", min: 0.1, max: 3, step: 0.05, unit: "×" },
+      ],
+    },
+    {
+      title: "Outline watermark",
+      when: "watermark",
+      rows: [
+        {
+          path: "watermark.content",
+          label: "Content",
+          type: "select",
+          options: { numbers: "Numbers (01–04)", names: "Section names" },
+        },
+        { path: "watermark.color", label: "Stroke color", type: "color" },
+        { path: "watermark.opacity", label: "Opacity", min: 0, max: 1, step: 0.01, unit: "" },
+        { path: "watermark.stroke", label: "Stroke width", min: 0.5, max: 6, step: 0.25, unit: "px" },
+        { path: "watermark.size", label: "Size", min: 10, max: 80, step: 1, unit: "vw" },
+        {
+          path: "watermark.align",
+          label: "Side",
+          type: "select",
+          options: { right: "Right", left: "Left" },
+        },
+        { path: "watermark.offset", label: "Edge offset", min: -40, max: 20, step: 0.5, unit: "vw" },
+        { path: "watermark.top", label: "Vertical offset", min: -30, max: 30, step: 0.5, unit: "vw" },
+        { path: "watermark.lag", label: "Scroll lag", min: 0, max: 0.6, step: 0.01, unit: "" },
+      ],
+    },
+    {
+      title: "Tone shift",
+      when: "tone",
+      rows: [
+        ...TONE_ZONES.flatMap((z) => {
+          const name = z[0].toUpperCase() + z.slice(1);
+          return [
+            { type: "heading", label: name },
+            { path: `tone.${z}Bg`, label: "Background", type: "palette" },
+            { path: `tone.${z}Ink`, label: "Text", type: "palette" },
+          ];
+        }),
+        { type: "heading", label: "Transition" },
+        { path: "tone.trigger", label: "Trigger line", min: 0, max: 100, step: 1, unit: "%" },
+        { path: "tone.duration", label: "Duration", min: 0, max: 3000, step: 10, unit: "ms" },
+        { path: "tone.easing", label: "Easing", type: "bezier" },
+      ],
+    },
+    {
+      title: "Grain gradient",
+      when: "gradient",
+      rows: [
+        { path: "gradient.color", label: "Color", type: "color" },
+        { path: "gradient.opacity", label: "Opacity", min: 0, max: 1, step: 0.01, unit: "" },
+        { path: "gradient.blur", label: "Blur", min: 0, max: 3, step: 0.05, unit: "×" },
+        { path: "gradient.size", label: "Size", min: 0.3, max: 2.5, step: 0.05, unit: "×" },
+        { type: "heading", label: "Grain" },
+        { path: "gradient.grain", label: "Grain", min: 0, max: 1, step: 0.01, unit: "" },
+        { path: "gradient.grainMatch", label: "Match gradient color", type: "toggle" },
+        { path: "gradient.grainColor", label: "Grain color", type: "color" },
+        { type: "heading", label: "Motion" },
+        { path: "gradient.speed", label: "Animation speed", min: 0.1, max: 3, step: 0.05, unit: "×" },
+        { path: "gradient.animate", label: "Animate", type: "toggle" },
+      ],
+    },
+    {
       title: "ASCII background",
       rows: [
+        { path: "ascii.scale", label: "Size", min: 0.25, max: 2.5, step: 0.05, unit: "×" },
+        { path: "ascii.opacity", label: "Opacity", min: 0, max: 100, step: 1, unit: "%" },
         { path: "ascii.delay", label: "Delay", min: 0, max: 3000, step: 10, unit: "ms" },
         { path: "ascii.duration", label: "Duration", min: 200, max: 6000, step: 50, unit: "ms" },
         { path: "ascii.band", label: "Noise band", min: 0, max: 67, step: 1, unit: "rows" },
@@ -610,12 +1211,18 @@
 
   let replayTimer = 0;
   let onChanged = () => {};
+  let rerenderPanel = () => {};
+  const LIVE = ["background", "grid", "dots", "paper", "watermark", "tone", "gradient"];
+  const LIVE_PATHS = ["ascii.scale", "ascii.opacity"];
 
   function changed(path) {
     save();
     applyVars();
     onChanged();
-    if (C.playback.autoReplay && path !== "playback.autoReplay") {
+    // Switching style swaps which background section the panel shows.
+    if (path === "background.style") rerenderPanel();
+    // Background values apply live, so there's nothing to replay for them.
+    if (C.playback.autoReplay && path !== "playback.autoReplay" && !LIVE.includes(path.split(".")[0]) && !LIVE_PATHS.includes(path)) {
       clearTimeout(replayTimer);
       replayTimer = setTimeout(replay, 300);
     }
@@ -765,6 +1372,50 @@
     ];
   }
 
+  // The --color-* variables declared in styles.css, read off the live page
+  // so new palette entries show up without touching this file.
+  function palette() {
+    const style = getComputedStyle(root);
+    const vars = [...style].filter((name) => name.startsWith("--color-"));
+    return vars.map((name) => ({
+      value: `var(${name})`,
+      label: name
+        .slice(8)
+        .split("-")
+        .map((w) => w[0].toUpperCase() + w.slice(1))
+        .join(" "),
+      hex: style.getPropertyValue(name).trim().toLowerCase(),
+    }));
+  }
+
+  // A palette variable or, via "Custom…" or the picker, any hex.
+  function paletteRow(row, refresh) {
+    const colors = palette();
+    const sel = make(
+      "select",
+      { class: "ac-select" },
+      ...colors.map((c) => make("option", { value: c.value }, `${c.label} · ${c.hex}`)),
+      make("option", { value: "custom" }, "Custom…")
+    );
+    const picker = make("input", { type: "color", class: "ac-color" });
+    const sync = () => {
+      const v = getPath(row.path);
+      const match = colors.find((c) => c.value === v);
+      sel.value = match ? v : "custom";
+      picker.value = match ? match.hex : v;
+    };
+    const set = (v) => {
+      setPath(row.path, v);
+      sync();
+      refresh();
+      changed(row.path);
+    };
+    sel.addEventListener("change", () => set(sel.value === "custom" ? picker.value : sel.value));
+    picker.addEventListener("input", () => set(picker.value));
+    sync();
+    return [make("span", { class: "ac-palette" }, sel, picker)];
+  }
+
   function fieldRow(row, rerender) {
     if (row.type === "heading") return make("div", { class: "ac-subhead" }, row.label);
     const reset = make("button", {
@@ -805,6 +1456,16 @@
         changed(row.path);
       });
       controls = [sel];
+    } else if (row.type === "color") {
+      const input = make("input", { type: "color", value: getPath(row.path), class: "ac-color" });
+      input.addEventListener("input", () => {
+        setPath(row.path, input.value);
+        refresh();
+        changed(row.path);
+      });
+      controls = [input];
+    } else if (row.type === "palette") {
+      controls = paletteRow(row, refresh);
     } else if (row.type === "text") {
       const input = make("input", { type: "text", value: getPath(row.path), class: "ac-text" });
       input.addEventListener("change", () => {
@@ -856,7 +1517,7 @@
     const render = () => {
       const scroll = body.scrollTop;
       body.replaceChildren(
-        ...FIELDS.map((section) =>
+        ...FIELDS.filter((section) => !section.when || section.when === C.background.style).map((section) =>
           make(
             "details",
             { class: "ac-section", open: true },
@@ -934,6 +1595,7 @@
     };
     toggle.addEventListener("click", () => setOpen(true));
 
+    rerenderPanel = render;
     render();
     onChanged();
     toggle.hidden = open;
@@ -948,6 +1610,7 @@
     const hero = build();
     root.classList.remove("anim-pending");
     play(hero);
+    backgrounds.replay();
   }
 
   init();

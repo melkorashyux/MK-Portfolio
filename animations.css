@@ -5,13 +5,100 @@ html.anim-pending :is(.nav, .hero, .ascii-art) {
   opacity: 0;
 }
 
+/* ---------- Background gradient ---------- */
+
+@keyframes bg-drift-1 {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6%, 8%, 0) scale(1.08);
+  }
+}
+
+@keyframes bg-drift-2 {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-8%, -6%, 0) scale(1.05);
+  }
+}
+
+@keyframes paper-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(-6%, 4%);
+  }
+  66% {
+    transform: translate(4%, -3%);
+  }
+}
+
+@keyframes bg-grain-shift {
+  0% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-4%, 2%);
+  }
+  20% {
+    transform: translate(3%, -3%);
+  }
+  30% {
+    transform: translate(-2%, 4%);
+  }
+  40% {
+    transform: translate(4%, 1%);
+  }
+  50% {
+    transform: translate(-3%, -2%);
+  }
+  60% {
+    transform: translate(2%, 3%);
+  }
+  70% {
+    transform: translate(-4%, -4%);
+  }
+  80% {
+    transform: translate(3%, 2%);
+  }
+  90% {
+    transform: translate(-1%, -3%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* "Animate" toggle in the control panel; also the fallback for reduced motion. */
+html.bg-static .bg-gradient-ribbon,
+html.bg-static .bg-gradient-blob-2,
+html.bg-static .bg-gradient-grain {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-paper-wash,
+  .bg-gradient-ribbon,
+  .bg-gradient-blob-2,
+  .bg-gradient-grain {
+    animation: none;
+  }
+}
+
 .a-word {
   display: inline-block;
   white-space: nowrap;
 }
 
-/* Each word clips its own content, extended past the box so Fraunces'
-   ascenders and descenders survive the tight 0.9167 line-height. */
+/* Each word clips its own content, extended past the box so ascenders and
+   descenders survive tight line-heights like the hero headline's 0.8413. */
 .a-mask {
   clip-path: inset(
     calc(-1 * var(--mask-clip-top, 0.35em)) -0.15em calc(-1 * var(--mask-clip-bottom, 0.3em)) -0.15em
@@ -134,8 +221,8 @@ html.anim-pending :is(.nav, .hero, .ascii-art) {
 }
 
 .ac-btn-primary:hover {
-  border-color: #ff6a1f;
-  background: #ff6a1f;
+  border-color: #e01a1a;
+  background: #e01a1a;
 }
 
 .ac-body {
@@ -235,6 +322,26 @@ html.anim-pending :is(.nav, .hero, .ascii-art) {
 .ac-num {
   width: 64px;
   text-align: right;
+}
+
+.ac-color {
+  width: 44px;
+  height: 26px;
+  padding: 2px;
+  border: 1px solid var(--color-dark-grey);
+  border-radius: 6px;
+  background: #151515;
+  cursor: pointer;
+}
+
+.ac-palette {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ac-palette .ac-select {
+  max-width: 170px;
 }
 
 .ac-text {

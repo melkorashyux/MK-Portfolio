@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:SOFT,WONK,opsz,wght@0..100,0..1,9..144,100..900&family=Geist:wght@400..700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&display=swap"
     rel="stylesheet"
   />
   <link rel="stylesheet" href="styles.css" />
@@ -30,6 +30,14 @@
   </script>
 </head>
 <body>
+  <div class="bg-gradient" aria-hidden="true">
+    <div class="bg-gradient-ribbon">
+      <div class="bg-gradient-blob bg-gradient-blob-head"></div>
+      <div class="bg-gradient-blob bg-gradient-blob-tail"></div>
+    </div>
+    <div class="bg-gradient-blob bg-gradient-blob-2"></div>
+    <div class="bg-gradient-grain"></div>
+  </div>
   <pre class="ascii-art" aria-hidden="true">
 ::::::::::::::::::::                                  ::::::::::::::         ::::::::::::::::::::   
 ::::::::::::::::::::                                  ::::::::::::::         ::::::::::::::::::::   
@@ -99,51 +107,72 @@
 :::::::::::::::::              :::             :::::::::::::::::::::         :::::::::::::::::::::::
 :::::::::::::::::              :::             :::::::::::::::::::::         :::::::::::::::::::::::
 </pre>
+  <canvas class="bg-dots" aria-hidden="true"></canvas>
+  <div class="bg-paper" aria-hidden="true">
+    <svg class="bg-paper-mottle">
+      <filter id="paper-mottle" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.004" numOctaves="3" seed="7" />
+        <feColorMatrix type="matrix" values="0 0 0 0 0.24 0 0 0 0 0.18 0 0 0 0 0.13 1.8 0 0 0 -0.62" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#paper-mottle)" />
+    </svg>
+    <div class="bg-paper-wash"></div>
+    <div class="bg-paper-texture"></div>
+    <div class="bg-paper-dither"></div>
+  </div>
   <div class="page">
+    <div class="bg-grid" aria-hidden="true"></div>
     <header class="container-grid nav">
-      <img src="assets/MK Logo.svg" alt="Mostafa Elkorashy" class="logo" />
+      <a href="#" class="logo" aria-label="Mostafa Elkorashy">
+        <svg viewBox="0 0 137.7 92.43" fill="currentColor" aria-hidden="true"><path d="M132.4,86.32a22.68,22.68,0,0,1-4-4.81l-28.08-45.6,16.63-22a32.53,32.53,0,0,1,8.44-8.06,25.06,25.06,0,0,1,8.07-3.25V0H106V2.6q4.81.13,6.87,2.34T114,11.18q-1,4-5.42,9.75L100,32.5a34.1,34.1,0,0,1-8,7.67A17.73,17.73,0,0,1,83.46,43V13.78a25.44,25.44,0,0,1,.72-7.08,4.71,4.71,0,0,1,2.71-3.12,17.21,17.21,0,0,1,5.85-1V0L75.34.39,51.85,67.28,26.88,0H0V2.6a17.61,17.61,0,0,1,6,1A4.54,4.54,0,0,1,8.61,6.7a27.11,27.11,0,0,1,.67,7.08V73.84a46.37,46.37,0,0,1-.67,9A7.22,7.22,0,0,1,6,87.49a13.05,13.05,0,0,1-6,2V92a45.13,45.13,0,0,1,4.88-.32c2,0,3.92-.07,5.85-.07,2.17,0,4.46,0,6.87.07s4.38.15,5.91.32v-2.6a18.56,18.56,0,0,1-7.54-2,7.12,7.12,0,0,1-3.19-4.94,50,50,0,0,1-.73-9.69V8.32L43.88,92.43h1.93L74.86,10.07V78.26a25.53,25.53,0,0,1-.72,7A4.55,4.55,0,0,1,71.3,88.4a23,23,0,0,1-6.2,1V92H92.74v-2.6a20.47,20.47,0,0,1-5.85-1,4.54,4.54,0,0,1-2.71-3.12,25.53,25.53,0,0,1-.72-7V45.67a12.86,12.86,0,0,1,3.37.68,8,8,0,0,1,3.07,2.27,31.68,31.68,0,0,1,3.44,5.07l17.6,29.9c1.21,2.08,1.48,3.54.84,4.36s-2.57,1.32-5.78,1.49V92h31.7v-2.6A17.55,17.55,0,0,1,132.4,86.32Z"/></svg>
+      </a>
       <nav class="nav-links">
-        <a href="#work">Work</a>
-        <a href="#timeline">Timeline</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
+        <a href="#work" data-label="Work">Work</a>
+        <a href="#timeline" data-label="Timeline">Timeline</a>
+        <a href="#about" data-label="About">About</a>
+        <a href="#contact" data-label="Contact">Contact</a>
       </nav>
     </header>
 
     <section class="hero container-grid">
-      <div class="heading-group">
-        <p class="eyebrow">Mostafa Elkorashy</p>
-        <h1 class="headline">I design interfaces,<br />and build them.</h1>
-        <p class="subtext">
-          A UI/UX Designer who crossed into front-end, so design and build
-          never fall out of sync.
-        </p>
+      <p class="eyebrow">Mostafa Elkorashy</p>
+      <div class="headline-wrap">
+        <h1 class="headline">
+          <span class="accent">Product</span><br />Designer &amp;<br />Builder
+        </h1>
+        <a href="#contact" class="cta">Contact</a>
       </div>
-
-      <a href="#contact" class="cta"><span>Let&apos;s Connect</span></a>
-
-      <p class="footer-clock" id="clock">Cairo (GMT +2) : --:--</p>
+      <p class="subtext">
+        A UI/UX Designer who crossed into front-end, so design and build
+        never fall out of sync.
+      </p>
     </section>
 
     <section class="work container-grid" id="work">
-      <h2 class="section-title">Work</h2>
+      <h2 class="section-title">Selected Work</h2>
       <div class="work-cards">
         <article class="work-card">
           <div class="work-card-image"></div>
           <div class="work-card-text">
-            <h3 class="work-card-title">Visual Brain</h3>
-            <p class="work-card-description">
-              A local-first inspiration library I designed and built.
-            </p>
+            <div class="work-card-info">
+              <h3 class="work-card-title">Visual Brain</h3>
+              <p class="work-card-description">
+                A local-first inspiration library I designed and built.
+              </p>
+            </div>
+            <a href="#" class="work-card-link">View Project ↗</a>
           </div>
         </article>
         <article class="work-card">
           <div class="work-card-image"></div>
           <div class="work-card-text">
-            <h3 class="work-card-title">Website Builder</h3>
-            <p class="work-card-description">
-              A local-first inspiration library I designed and built.
-            </p>
+            <div class="work-card-info">
+              <h3 class="work-card-title">Website Builder</h3>
+              <p class="work-card-description">
+                A local-first inspiration library I designed and built.
+              </p>
+            </div>
+            <a href="#" class="work-card-link">View Project ↗</a>
           </div>
         </article>
       </div>
@@ -156,8 +185,8 @@
           <div class="timeline-row-content">
             <span class="timeline-year">2017</span>
             <p class="timeline-description">
-              Started at the Faculty of Applied Arts, majoring in Graphic
-              Design.
+              Started at the Faculty of Applied Arts, majoring in graphic
+              design.
             </p>
           </div>
           <div class="timeline-divider"></div>
@@ -166,7 +195,7 @@
           <div class="timeline-row-content">
             <span class="timeline-year">2019</span>
             <p class="timeline-description">
-              Started my career as a Freelance Logo Designer.
+              Started my career as a freelance logo designer.
             </p>
           </div>
           <div class="timeline-divider"></div>
@@ -174,7 +203,7 @@
         <div class="timeline-row">
           <div class="timeline-row-content">
             <span class="timeline-year">2020</span>
-            <p class="timeline-description">Moved into UI/UX Design.</p>
+            <p class="timeline-description">Moved into UI/UX design.</p>
           </div>
           <div class="timeline-divider"></div>
         </div>
@@ -182,8 +211,8 @@
           <div class="timeline-row-content">
             <span class="timeline-year">2021</span>
             <p class="timeline-description">
-              Freelance UI/UX (Projects and Part-time) across multiple
-              Clients, and the first Fulltime job.
+              Freelance UI/UX work (projects and part-time) across multiple
+              clients, and my first full-time job.
             </p>
           </div>
           <div class="timeline-divider"></div>
@@ -192,7 +221,7 @@
           <div class="timeline-row-content">
             <span class="timeline-year">2022</span>
             <p class="timeline-description">
-              Joined Ynmo as a Fulltime Product Designer; graduated the same
+              Joined Ynmo as a full-time product designer; graduated the same
               year.
             </p>
           </div>
@@ -201,7 +230,7 @@
         <div class="timeline-row">
           <div class="timeline-row-content">
             <span class="timeline-year">2023</span>
-            <p class="timeline-description">Mandatory Army Service.</p>
+            <p class="timeline-description">Mandatory army service.</p>
           </div>
           <div class="timeline-divider"></div>
         </div>
@@ -209,7 +238,7 @@
           <div class="timeline-row-content">
             <span class="timeline-year">2024</span>
             <p class="timeline-description">
-              Rejoined Ynmo as a Product Designer.
+              Rejoined Ynmo as a product designer.
             </p>
           </div>
           <div class="timeline-divider"></div>
@@ -219,7 +248,7 @@
             <span class="timeline-year">2026</span>
             <p class="timeline-description">
               Started coding; designed and built Visual Brain, my own
-              local-first design tool.
+              local-first inspiration library tool.
             </p>
           </div>
         </div>
@@ -232,30 +261,29 @@
         <div class="about-text">
           <p>
             I&apos;ve been obsessed with technology for as long as I can
-            remember. Nokia phones and Windows XP were sort of my childhood,
-            then came gaming; MMORPGs in particular where I actually learned
-            a lot of my English, which did help me later in career.
+            remember. Nokia phones and Windows XP were sort of my childhood.
+            Then came gaming, MMORPGs in particular, which is where I learned
+            a lot of my English. That helped me later in my career.
           </p>
           <p>
-            That obsession followed me to High school when I was aiming for
-            CS degree but life pointed me to Applied Arts instead, where I
-            got to be a Graphic Designer and handle computers in different
+            That obsession followed me to high school, when I was aiming for
+            a CS degree, but life pointed me to Applied Arts instead, where I
+            got to be a graphic designer and handle computers in different
             ways.
           </p>
           <p>
             I started as a generalist, learning the fundamentals across
-            every corner of design. Then in 2020 with the lockdown I got
-            interested in User Interface design with my background in
-            Graphic design I thought it would be an easy approach but it
-            wasn&apos;t as the User Experience part was definitely a
-            challenge.
+            every corner of design. Then, in 2020, the lockdown got me
+            interested in user interface design. With my background in
+            graphic design, I thought it would be an easy move, but it was
+            just the start of something much bigger and more challenging.
           </p>
           <p>
-            But that&apos;s when the English I learned from gaming actually
-            was useful because in 2021 I started my first Fulltime job as a
-            UI/UX Designer for a company in New Jersey, USA, and found out
-            that the remote working lifestyle can work, and have been a
-            remote worker ever since.
+            That&apos;s when the English I learned from gaming finally paid
+            off. In 2021, I started my first full-time job as a UI/UX
+            designer at Reliant Technologies in New Jersey, USA. I found out
+            that remote work really can work, and I&apos;ve been remote ever
+            since.
           </p>
           <p>
             Now it&apos;s 2026 and I think we&apos;ve reached the age of the
@@ -273,9 +301,13 @@
         <div class="about-picture" aria-hidden="true"></div>
       </div>
     </section>
+
+    <section class="contact-cta container-grid" id="contact">
+      <p class="contact-cta-line">Let&apos;s design something</p>
+      <a href="mailto:m.elkorashy@gmail.com" class="contact-cta-line">m.elkorashy@gmail.com</a>
+    </section>
   </div>
 
-  <script src="script.js"></script>
   <script src="animations.js"></script>
 </body>
 </html>
