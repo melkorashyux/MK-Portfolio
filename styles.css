@@ -72,9 +72,12 @@
      1440px design values expressed in vw, clamped so they scale down on
      narrower viewports; line heights are ratios of the design px values. */
 
-  /* Display (hero headline): Geist Bold 208 / 175 / -6% */
+  /* Display (hero headline): Geist Bold 208 / 175 / -6%. Also capped by
+     viewport height so the whole hero fits on short screens: 284px is the
+     nav (67) + hero padding (128) + eyebrow, subtext and gaps (89), and
+     2.524 is three lines at the 0.8413 line height. */
   --font-display-weight: 700;
-  --font-display-size: clamp(3rem, 14.444vw, 13rem);
+  --font-display-size: clamp(3rem, min(14.444vw, (100svh - 284px) / 2.524), 13rem);
   --font-display-line-height: 0.8413;
   --font-display-letter-spacing: -0.06em;
 
