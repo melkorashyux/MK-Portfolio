@@ -6,7 +6,7 @@
    "Copy settings" puts a new DEFAULTS block on the clipboard to paste here. */
 (() => {
   const root = document.documentElement;
-  const SHOW_CONTROLS = false;
+  const SHOW_CONTROLS = true;
   const STORE_KEY = "anim-config";
   const MOTION = "anim" in root.dataset; // set by the boot script in <head>
 
@@ -126,6 +126,41 @@
       direction: "up",
       charset: ":::.;-+*#",
     },
+    // Smooth (inertial) wheel scrolling via Lenis, loaded in index.html.
+    smooth: {
+      enabled: true,
+      lerp: 0.07, // share of the remaining distance covered per frame; lower = heavier
+    },
+    // A full-screen panel with a 0–100 counter that lifts off the page on
+    // load and on Replay, pushing the page up into place behind it.
+    intro: {
+      curtain: true,
+      color: "#171717",
+      ink: "#f2f2f7",
+      count: 1400, // ms the counter takes to reach 100
+      hold: 150, // ms it rests at 100
+      wipe: 1200, // ms the panel takes to lift
+      easing: [0.82, 0, 0.18, 1],
+      push: 160, // px the page rises from as the panel lifts
+      heroAt: 0.45, // share of the lift after which the hero text starts
+    },
+    // How every piece of text enters. The mask values below drive "mask" and
+    // "letters"; duration, easing and line stagger apply to all of them.
+    reveal: {
+      style: "line", // line | mask | fade | block | weight | flip
+      reset: true, // sections hide again once they drop below the screen, and replay on the way back down
+      lineDuration: 2000, // ms for large type (line)
+      smallDuration: 900, // ms for body-size type (line)
+      lineDistance: 150, // % of the line's height it rises from (line)
+      lineStagger: 100, // ms between lines (line)
+      fadeDuration: 1200, // ms (fade)
+      fadeRise: 8, // px each block drifts up while fading in (fade)
+      wordStagger: 60, // ms between words in a line (block, weight)
+      letterStagger: 22, // ms between letters (flip)
+      blockColor: "#cc0000", // the bar that sweeps over each word (block)
+      weightFrom: 300, // weight words start at; Geist loads 300–800 (weight)
+      tracking: 0.12, // em of letter spacing words start with (weight)
+    },
     mask: {
       duration: 750,
       easing: [0.16, 1, 0.3, 1],
@@ -136,7 +171,7 @@
       clipBottom: 0.3, // em the mask extends below each word (descenders)
     },
     hero: {
-      delay: 1010,
+      delay: 200, // after the curtain starts lifting (intro.heroAt)
       blockStagger: 265, // between eyebrow, headline, subtext, button
       navStagger: 140,
       navDistance: 20, // px the nav drops in from
@@ -212,6 +247,7 @@
   function applyVars() {
     root.style.setProperty("--mask-clip-top", `${C.mask.clipTop}em`);
     root.style.setProperty("--mask-clip-bottom", `${C.mask.clipBottom}em`);
+    smooth.apply();
     root.dataset.navDock = C.nav.dock;
     root.style.setProperty("--dock-offset", `${C.nav.offset}px`);
     root.style.setProperty("--dock-duration", `${C.nav.duration}ms`);
@@ -352,14 +388,19 @@
     groups = [];
   }
 
+  // With reveal.reset on, a group that has played is torn down and set up
+  // again once its trigger is fully below the screen, so it plays again on
+  // the way back down.
   function scrollGroup(trigger, build, { triggerOffset = C.scroll.triggerOffset, offset } = {}) {
     if (!trigger) return;
-    const g = group();
+    let g = group();
     build(g);
+    let played = false;
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          io.disconnect();
+        if (!played && entries.some((e) => e.isIntersecting)) {
+          played = true;
+          if (!C.reveal.reset) io.disconnect();
           play(g, offset ? offset() : 0);
         }
       },
@@ -367,6 +408,17 @@
     );
     io.observe(trigger);
     observers.push(io);
+    if (!C.reveal.reset) return;
+    const below = new IntersectionObserver(([e]) => {
+      if (played && !e.isIntersecting && e.boundingClientRect.top > 0) {
+        kill(g);
+        g = group();
+        build(g);
+        played = false;
+      }
+    });
+    below.observe(trigger);
+    observers.push(below);
   }
 
   /* ---------- Moves ---------- */
@@ -415,34 +467,127 @@
     );
   }
 
-  // Each word clips its own content; lines rise one after another. `opts`
-  // overrides any C.mask value for this element only.
+  // Wraps a word's content in an inner span that rises inside the word's clip.
+  function masked(word) {
+    const inner = document.createElement("span");
+    inner.className = "a-inner";
+    inner.append(...word.childNodes);
+    word.classList.add("a-mask");
+    word.append(inner);
+    return inner;
+  }
+
+  // Splits a word into one span per letter and returns them.
+  function letters(word) {
+    const chars = [...word.textContent].map((ch) => {
+      const span = document.createElement("span");
+      span.className = "a-char";
+      span.textContent = ch;
+      return span;
+    });
+    word.replaceChildren(...chars);
+    return chars;
+  }
+
+  // Every text reveal on the page, in the style set by reveal.style. Lines
+  // follow one another; `opts` overrides any C.mask value for this element.
   function maskWords(g, el, delay, opts = {}) {
     if (!el) return;
-    const m = { ...C.mask, ...opts };
+    const r = C.reveal;
+    // Line: whole lines rise slowly and straight, with no tilt; big type
+    // takes longer than body text.
+    const big = parseFloat(getComputedStyle(el).fontSize) >= 40;
+    const line =
+      r.style === "line"
+        ? { tilt: 0, distance: r.lineDistance, lineStagger: r.lineStagger, easing: [0.16, 1, 0.3, 1], duration: big ? r.lineDuration : r.smallDuration }
+        : {};
+    const m = { ...C.mask, ...opts, ...line };
+    const timing = (d, duration = m.duration) => ({ duration, delay: d, easing: ease(m.easing) });
+    // Quiet: the whole block fades up as one, with no splitting at all.
+    if (r.style === "fade") {
+      g.anims.push(
+        paused(el, [{ opacity: 0, transform: `translateY(${r.fadeRise}px)` }, { opacity: 1, transform: "none" }], {
+          duration: r.fadeDuration,
+          delay,
+          easing: "cubic-bezier(0.33, 1, 0.68, 1)",
+        })
+      );
+      return;
+    }
     remember(el);
     g.restore.push(el);
-    const words = splitWords(el);
-    for (const word of words) {
-      const inner = document.createElement("span");
-      inner.className = "a-inner";
-      inner.append(...word.childNodes);
-      word.classList.add("a-mask");
-      word.append(inner);
-    }
-    byLine(words).forEach((line, i) => {
-      for (const word of line) {
-        g.anims.push(
-          paused(
-            word.firstChild,
-            [
-              { transform: `translateY(${m.distance}%) rotate(${m.tilt}deg)` },
-              { transform: "none" },
-            ],
-            { duration: m.duration, delay: delay + i * m.lineStagger, easing: ease(m.easing) }
-          )
-        );
-      }
+    const lines = byLine(splitWords(el));
+
+    lines.forEach((line, i) => {
+      const lineStart = delay + i * m.lineStagger;
+      let n = 0; // letters so far in this line
+      line.forEach((word, w) => {
+        const d = lineStart + w * r.wordStagger;
+        if (r.style === "block") {
+          // A bar draws over the word, the word appears under it, and the
+          // bar pulls away to the right.
+          const bar = document.createElement("span");
+          bar.className = "a-bar";
+          bar.style.background = r.blockColor;
+          const inner = document.createElement("span");
+          inner.append(...word.childNodes);
+          word.classList.add("a-block");
+          word.append(inner, bar);
+          g.anims.push(
+            paused(
+              bar,
+              [
+                { transform: "scaleX(0)", transformOrigin: "left", offset: 0 },
+                { transform: "scaleX(1)", transformOrigin: "left", offset: 0.5 },
+                { transform: "scaleX(1)", transformOrigin: "right", offset: 0.5 },
+                { transform: "scaleX(0)", transformOrigin: "right", offset: 1 },
+              ],
+              { duration: m.duration * 1.6, delay: d, easing: ease([0.65, 0, 0.35, 1]) }
+            ),
+            paused(inner, [{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1, offset: 0.5 }, { opacity: 1 }], {
+              duration: m.duration * 1.6,
+              delay: d,
+            })
+          );
+        } else if (r.style === "weight") {
+          // Geist is variable: words arrive thin and loose, then settle into
+          // their real weight and tracking.
+          const cs = getComputedStyle(word);
+          g.anims.push(
+            paused(
+              word,
+              [
+                { opacity: 0, fontWeight: r.weightFrom, letterSpacing: `${r.tracking}em` },
+                { opacity: 1, fontWeight: cs.fontWeight, letterSpacing: cs.letterSpacing },
+              ],
+              timing(d, m.duration * 1.4)
+            )
+          );
+        } else if (r.style === "flip") {
+          // Split-flap: each letter flips down into place around its top edge.
+          for (const ch of letters(word)) {
+            g.anims.push(
+              paused(
+                ch,
+                [
+                  { opacity: 0, transform: "perspective(4em) rotateX(-95deg)" },
+                  { opacity: 1, offset: 0.3 },
+                  { opacity: 1, transform: "perspective(4em) rotateX(0)" },
+                ],
+                timing(lineStart + n++ * r.letterStagger)
+              )
+            );
+          }
+        } else {
+          g.anims.push(
+            paused(
+              masked(word),
+              [{ transform: `translateY(${m.distance}%) rotate(${m.tilt}deg)` }, { transform: "none" }],
+              timing(lineStart)
+            )
+          );
+        }
+      });
     });
   }
 
@@ -600,9 +745,83 @@
   }
 
   function replay() {
-    if (MOTION) play(build());
-    backgrounds.replay();
+    if (!MOTION) return backgrounds.replay();
+    const hero = build();
+    intro(() => {
+      play(hero);
+      backgrounds.replay();
+    });
   }
+
+  /* ---------- Intro curtain ---------- */
+
+  let curtain = null;
+
+  // Counts to 100, then lifts off the page; `start` runs partway through the
+  // lift so the hero text rises as the page is uncovered.
+  function intro(start) {
+    curtain?.remove();
+    const i = C.intro;
+    if (!i.curtain) return start();
+    const speed = C.playback.speed;
+    const num = make("span", { class: "intro-count" }, "0");
+    const bar = make("span", { class: "intro-bar" });
+    curtain = make("div", { class: "intro-curtain", "aria-hidden": "true" }, num, bar);
+    curtain.style.background = i.color;
+    curtain.style.color = i.ink;
+    document.body.append(curtain);
+    const page = $(".page");
+    page.style.transform = `translateY(${i.push}px)`;
+    smooth.lenis?.stop();
+    const self = curtain;
+
+    const t0 = performance.now();
+    const count = (now) => {
+      if (self !== curtain) return;
+      const p = Math.min(1, ((now - t0) * speed) / i.count);
+      const v = 1 - (1 - p) ** 3;
+      num.textContent = Math.round(v * 100);
+      bar.style.transform = `scaleX(${v})`;
+      if (p < 1) return requestAnimationFrame(count);
+      setTimeout(lift, i.hold / speed);
+    };
+    requestAnimationFrame(count);
+
+    function lift() {
+      if (self !== curtain) return;
+      const opts = { duration: i.wipe / speed, easing: ease(i.easing), fill: "forwards" };
+      const up = self.animate([{ transform: "none" }, { transform: "translateY(-100%)" }], opts);
+      const rise = page.animate([{ transform: `translateY(${i.push}px)` }, { transform: "none" }], opts);
+      setTimeout(start, (i.wipe * i.heroAt) / speed);
+      up.finished.then(() => {
+        if (self !== curtain) return;
+        page.style.transform = "";
+        rise.cancel();
+        self.remove();
+        curtain = null;
+        smooth.lenis?.start();
+      }, () => {});
+    }
+  }
+
+  /* ---------- Smooth scroll ---------- */
+
+  const smooth = {
+    lenis: null,
+    apply() {
+      const on = MOTION && C.smooth.enabled && "Lenis" in window;
+      if (!on) {
+        this.lenis?.destroy();
+        this.lenis = null;
+        return;
+      }
+      if (this.lenis) {
+        this.lenis.options.lerp = C.smooth.lerp;
+        return;
+      }
+      this.lenis = new Lenis({ lerp: C.smooth.lerp, anchors: true, autoRaf: true });
+    },
+  };
 
   /* ---------- Backgrounds ----------
      One style at a time, chosen by background.style. Each style's values
@@ -939,6 +1158,27 @@
       ],
     },
     {
+      title: "Smooth scroll",
+      rows: [
+        { path: "smooth.enabled", label: "Smooth scrolling", type: "toggle" },
+        { path: "smooth.lerp", label: "Weight (lower = heavier)", min: 0.02, max: 0.3, step: 0.01, unit: "" },
+      ],
+    },
+    {
+      title: "Intro curtain",
+      rows: [
+        { path: "intro.curtain", label: "Show curtain", type: "toggle" },
+        { path: "intro.color", label: "Panel color", type: "color" },
+        { path: "intro.ink", label: "Counter color", type: "color" },
+        { path: "intro.count", label: "Count duration", min: 0, max: 4000, step: 50, unit: "ms" },
+        { path: "intro.hold", label: "Hold at 100", min: 0, max: 1500, step: 10, unit: "ms" },
+        { path: "intro.wipe", label: "Lift duration", min: 200, max: 3000, step: 10, unit: "ms" },
+        { path: "intro.easing", label: "Lift easing", type: "bezier" },
+        { path: "intro.push", label: "Page rise", min: 0, max: 600, step: 5, unit: "px" },
+        { path: "intro.heroAt", label: "Hero starts at", min: 0, max: 1, step: 0.05, unit: "×" },
+      ],
+    },
+    {
       title: "Navigation",
       rows: [
         {
@@ -1136,6 +1376,36 @@
       ],
     },
     {
+      title: "Text reveal",
+      rows: [
+        {
+          path: "reveal.style",
+          label: "Style",
+          type: "select",
+          options: {
+            line: "Line rise (reference)",
+            mask: "Mask rise (words, tilted)",
+            fade: "Quiet fade",
+            block: "A · Block wipe",
+            weight: "B · Weight settle",
+            flip: "C · Split-flap",
+          },
+        },
+        { path: "reveal.reset", label: "Replay when scrolled back", type: "toggle" },
+        { path: "reveal.lineDuration", label: "Large type duration", min: 200, max: 4000, step: 50, unit: "ms", show: ["line"] },
+        { path: "reveal.smallDuration", label: "Body type duration", min: 200, max: 3000, step: 50, unit: "ms", show: ["line"] },
+        { path: "reveal.lineDistance", label: "Rise distance", min: 50, max: 300, step: 5, unit: "%", show: ["line"] },
+        { path: "reveal.lineStagger", label: "Line stagger", min: 0, max: 400, step: 5, unit: "ms", show: ["line"] },
+        { path: "reveal.fadeDuration", label: "Fade duration", min: 100, max: 3000, step: 50, unit: "ms", show: ["fade"] },
+        { path: "reveal.fadeRise", label: "Drift up", min: 0, max: 40, step: 1, unit: "px", show: ["fade"] },
+        { path: "reveal.wordStagger", label: "Word stagger", min: 0, max: 300, step: 5, unit: "ms", show: ["block", "weight"] },
+        { path: "reveal.letterStagger", label: "Letter stagger", min: 0, max: 80, step: 1, unit: "ms", show: ["flip"] },
+        { path: "reveal.blockColor", label: "Bar color", type: "color", show: ["block"] },
+        { path: "reveal.weightFrom", label: "Start weight", min: 300, max: 800, step: 10, unit: "", show: ["weight"] },
+        { path: "reveal.tracking", label: "Start tracking", min: -0.1, max: 0.5, step: 0.01, unit: "em", show: ["weight"] },
+      ],
+    },
+    {
       title: "Text mask",
       rows: [
         { path: "mask.duration", label: "Duration", min: 100, max: 3000, step: 10, unit: "ms" },
@@ -1243,7 +1513,7 @@
   let replayTimer = 0;
   let onChanged = () => {};
   let rerenderPanel = () => {};
-  const LIVE = ["nav", "background", "grid", "dots", "paper", "watermark", "tone", "gradient"];
+  const LIVE = ["smooth", "nav", "background", "grid", "dots", "paper", "watermark", "tone", "gradient"];
   const LIVE_PATHS = ["ascii.scale", "ascii.opacity"];
 
   function changed(path) {
@@ -1251,7 +1521,7 @@
     applyVars();
     onChanged();
     // Switching style swaps which background section the panel shows.
-    if (path === "background.style") rerenderPanel();
+    if (path === "background.style" || path === "reveal.style") rerenderPanel();
     // Background values apply live, so there's nothing to replay for them.
     if (C.playback.autoReplay && path !== "playback.autoReplay" && !LIVE.includes(path.split(".")[0]) && !LIVE_PATHS.includes(path)) {
       clearTimeout(replayTimer);
@@ -1553,7 +1823,9 @@
             "details",
             { class: "ac-section", open: true },
             make("summary", {}, section.title),
-            ...section.rows.map((row) => fieldRow(row, render))
+            ...section.rows
+              .filter((row) => !row.show || row.show.includes(C.reveal.style))
+              .map((row) => fieldRow(row, render))
           )
         )
       );
@@ -1685,8 +1957,10 @@
     await Promise.race([document.fonts.ready, wait(1500)]);
     const hero = build();
     root.classList.remove("anim-pending");
-    play(hero);
-    backgrounds.replay();
+    intro(() => {
+      play(hero);
+      backgrounds.replay();
+    });
   }
 
   init();

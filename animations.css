@@ -105,9 +105,78 @@ html.bg-static .bg-gradient-grain {
   );
 }
 
+/* Single letters; split-flap ones hinge on their top edge. */
+.a-char {
+  display: inline-block;
+  white-space: pre;
+  transform-origin: 50% 0;
+  backface-visibility: hidden;
+}
+
+.a-block {
+  position: relative;
+}
+
+.a-bar {
+  position: absolute;
+  inset: -0.04em -0.06em;
+  transform: scaleX(0);
+}
+
 .a-inner {
   display: inline-block;
   transform-origin: 0 100%;
+}
+
+/* ---------- Intro curtain ---------- */
+
+.intro-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--page-padding);
+  font-family: var(--font-geist);
+}
+
+.intro-count {
+  font-weight: 700;
+  font-size: clamp(5rem, 22vw, 20rem);
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.intro-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+/* ---------- Smooth scroll (from lenis.css) ---------- */
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+/* With the body no longer viewport-tall, the page keeps the hero full height. */
+html.lenis .page {
+  min-height: 100svh;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 /* ---------- Control panel ---------- */
