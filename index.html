@@ -8,310 +8,146 @@
     name="description"
     content="A UI/UX Designer who crossed into front-end, so design and build never fall out of sync."
   />
+  <meta name="theme-color" content="#121212" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400..800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap"
     rel="stylesheet"
   />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="animations.css" />
-  <link rel="stylesheet" href="theme-grain.css" />
-  <script>
-    /* Animation boot: runs before first paint so the hero can start hidden
-       instead of flashing. Skipped for reduced motion. See animations.js. */
-    (function () {
-      var d = document.documentElement;
-      /* Preview theme: ?theme=grain applies theme-grain.css. */
-      if (new URLSearchParams(location.search).get("theme") === "grain") d.dataset.theme = "grain";
-      var forced = new URLSearchParams(location.search).get("motion") === "force";
-      if (matchMedia("(prefers-reduced-motion: reduce)").matches && !forced) return;
-      d.dataset.anim = "";
-      d.classList.add("anim-pending");
-      setTimeout(function () { d.classList.remove("anim-pending"); }, 4000);
-    })();
-  </script>
 </head>
 <body>
-  <div class="bg-gradient" aria-hidden="true">
-    <div class="bg-gradient-ribbon">
-      <div class="bg-gradient-blob bg-gradient-blob-head"></div>
-      <div class="bg-gradient-blob bg-gradient-blob-tail"></div>
-    </div>
-    <div class="bg-gradient-blob bg-gradient-blob-2"></div>
-    <div class="bg-gradient-grain"></div>
-  </div>
-  <pre class="ascii-art" aria-hidden="true">
-::::::::::::::::::::                                  ::::::::::::::         ::::::::::::::::::::   
-::::::::::::::::::::                                  ::::::::::::::         ::::::::::::::::::::   
-  :::::::::::::::::::                                 ::::::::::::             :::::::::::::::::    
-     ::::::::::::::::                                ::::::::::                  ::::::::::::       
-      ::::::::::::::::                               :::::::::                    :::::::::         
-      ::::::::::::::::                               ::::::::                     ::::::::          
-      ::::::::::::::::                              :::::::::                      ::::::           
-      :::::::::::::::::                             :::::::::                     ::::::            
-      :::::::::::::::::                             :::::::::                     :::::             
-      ::: :::::::::::::                            ::::::::::                     ::::              
-      ::: ::::::::::::::                           ::::::::::                    ::::               
-      ::: ::::::::::::::                          ::: :::::::                    :::                
-      :::  ::::::::::::::                         ::: :::::::                   ::::                
-      :::  ::::::::::::::                         ::: :::::::                   :::                 
-      :::   :::::::::::::                        :::  :::::::                  :::                  
-      :::   ::::::::::::::                       :::  :::::::                 :::                   
-      :::   ::::::::::::::                       ::   :::::::                 :::                   
-      :::    :::::::::::::                      :::   :::::::                :::                    
-      :::    ::::::::::::::                     :::   :::::::               :::                     
-      :::    ::::::::::::::                     ::    :::::::              :::                      
-      :::     ::::::::::::::                   :::    :::::::              :::                      
-      :::     ::::::::::::::                   :::    :::::::             :::                       
-      :::      :::::::::::::                   ::     :::::::            :::                        
-      :::      ::::::::::::::                 :::     :::::::           :::                         
-      :::      ::::::::::::::                 :::     :::::::          :::                          
-      :::       :::::::::::::                 ::      :::::::          :::                          
-      :::       ::::::::::::::               :::      :::::::         ::::                          
-      :::       ::::::::::::::               :::      :::::::       ::::::                          
-      :::        :::::::::::::              :::       :::::::      ::::::::                         
-      :::        ::::::::::::::             :::       :::::::    ::::::::::                         
-      :::         :::::::::::::             :::       :::::::  :::::::::::::                        
-      :::         ::::::::::::::           :::        :::::::::::::::::::::::                       
-      :::         ::::::::::::::           :::        :::::::::::::::::::::::                       
-      :::          :::::::::::::           ::         ::::::::::::::::::::::::                      
-      :::          ::::::::::::::         :::         :::::::   ::::::::::::::                      
-      :::          ::::::::::::::         :::         :::::::    ::::::::::::::                     
-      :::           :::::::::::::         ::          :::::::     ::::::::::::::                    
-      :::           ::::::::::::::       :::          :::::::     ::::::::::::::                    
-      :::            :::::::::::::       :::          :::::::      ::::::::::::::                   
-      :::            ::::::::::::::      ::           :::::::       ::::::::::::::                  
-      :::            ::::::::::::::     :::           :::::::       ::::::::::::::                  
-      :::             :::::::::::::     :::           :::::::        ::::::::::::::                 
-      :::             ::::::::::::::    ::            :::::::        ::::::::::::::                 
-      :::             ::::::::::::::   :::            :::::::         ::::::::::::::                
-      :::              :::::::::::::   :::            :::::::          ::::::::::::::               
-      :::              ::::::::::::::  ::             :::::::          ::::::::::::::               
-      :::               ::::::::::::: :::             :::::::           ::::::::::::::              
-      :::               :::::::::::::::::             :::::::           ::::::::::::::              
-      :::               ::::::::::::::::              :::::::            ::::::::::::::             
-      :::                :::::::::::::::              :::::::            :::::::::::::::            
-      :::                :::::::::::::::              :::::::             ::::::::::::::            
-      :::                ::::::::::::::               :::::::              ::::::::::::::           
-      :::                 :::::::::::::               :::::::              :::::::::::::::          
-      :::                 ::::::::::::                :::::::               ::::::::::::::          
-      :::                  :::::::::::                :::::::               :::::::::::::::         
-      :::                  :::::::::::                :::::::                ::::::::::::::         
-      :::                  ::::::::::                 :::::::                 ::::::::::::::        
-      :::                   :::::::::                 :::::::                 :::::::::::::::       
-      ::::                  :::::::::                 :::::::                  ::::::::::::::       
-      ::::                   :::::::                  :::::::                  :::::::::::::::      
-      ::::                   :::::::                  :::::::                   :::::::::::::::     
-      ::::                   :::::::                  :::::::                   ::::::::::::::::    
-     ::::::                   :::::                  :::::::::                   :::::::::::::::    
-    ::::::::                  :::::                 ::::::::::                   :::::::::::::::::  
- :::::::::::::::              :::::             ::::::::::::::::::            ::::::::::::::::::::::
-:::::::::::::::::              :::             :::::::::::::::::::::         :::::::::::::::::::::::
-:::::::::::::::::              :::             :::::::::::::::::::::         :::::::::::::::::::::::
-</pre>
-  <canvas class="bg-dots" aria-hidden="true"></canvas>
-  <div class="bg-paper" aria-hidden="true">
-    <svg class="bg-paper-mottle">
-      <filter id="paper-mottle" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-        <feTurbulence type="fractalNoise" baseFrequency="0.004" numOctaves="3" seed="7" />
-        <feColorMatrix type="matrix" values="0 0 0 0 0.24 0 0 0 0 0.18 0 0 0 0 0.13 1.8 0 0 0 -0.62" />
-      </filter>
-      <rect width="100%" height="100%" filter="url(#paper-mottle)" />
-    </svg>
-    <div class="bg-paper-wash"></div>
-    <div class="bg-paper-texture"></div>
-    <div class="bg-paper-dither"></div>
-  </div>
-  <div class="page">
-    <div class="bg-grid" aria-hidden="true"></div>
-    <header class="container-grid nav">
-      <a href="#" class="logo" aria-label="Mostafa Elkorashy">
-        <svg viewBox="0 0 137.7 92.43" fill="currentColor" aria-hidden="true"><path d="M132.4,86.32a22.68,22.68,0,0,1-4-4.81l-28.08-45.6,16.63-22a32.53,32.53,0,0,1,8.44-8.06,25.06,25.06,0,0,1,8.07-3.25V0H106V2.6q4.81.13,6.87,2.34T114,11.18q-1,4-5.42,9.75L100,32.5a34.1,34.1,0,0,1-8,7.67A17.73,17.73,0,0,1,83.46,43V13.78a25.44,25.44,0,0,1,.72-7.08,4.71,4.71,0,0,1,2.71-3.12,17.21,17.21,0,0,1,5.85-1V0L75.34.39,51.85,67.28,26.88,0H0V2.6a17.61,17.61,0,0,1,6,1A4.54,4.54,0,0,1,8.61,6.7a27.11,27.11,0,0,1,.67,7.08V73.84a46.37,46.37,0,0,1-.67,9A7.22,7.22,0,0,1,6,87.49a13.05,13.05,0,0,1-6,2V92a45.13,45.13,0,0,1,4.88-.32c2,0,3.92-.07,5.85-.07,2.17,0,4.46,0,6.87.07s4.38.15,5.91.32v-2.6a18.56,18.56,0,0,1-7.54-2,7.12,7.12,0,0,1-3.19-4.94,50,50,0,0,1-.73-9.69V8.32L43.88,92.43h1.93L74.86,10.07V78.26a25.53,25.53,0,0,1-.72,7A4.55,4.55,0,0,1,71.3,88.4a23,23,0,0,1-6.2,1V92H92.74v-2.6a20.47,20.47,0,0,1-5.85-1,4.54,4.54,0,0,1-2.71-3.12,25.53,25.53,0,0,1-.72-7V45.67a12.86,12.86,0,0,1,3.37.68,8,8,0,0,1,3.07,2.27,31.68,31.68,0,0,1,3.44,5.07l17.6,29.9c1.21,2.08,1.48,3.54.84,4.36s-2.57,1.32-5.78,1.49V92h31.7v-2.6A17.55,17.55,0,0,1,132.4,86.32Z"/></svg>
+  <div class="page" id="top">
+    <div class="page-grid" aria-hidden="true"></div>
+
+    <!-- Hero: rows 1–8 -->
+    <header class="section hero">
+      <a href="#top" class="hero-logo" aria-label="Mostafa Elkorashy, back to top">
+        <svg viewBox="0 0 52 35" fill="currentColor" aria-hidden="true"><path d="M49.9586 32.6019C49.3741 32.0691 48.8662 31.4577 48.4493 30.7853L37.8539 13.5627L44.1289 5.25363C44.9984 4.05505 46.0773 3.02373 47.3136 2.20947C48.2493 1.62573 49.2799 1.21032 50.3586 0.981986V0H39.9971V0.981986C41.2071 1.01472 42.0712 1.30932 42.5894 1.86577C43.1076 2.42223 43.2497 3.20782 43.0158 4.22254C42.7642 5.22971 42.0825 6.45719 40.9706 7.90499L37.7331 12.2748C36.8914 13.3988 35.8718 14.3773 34.7145 15.1717C33.75 15.7994 32.6401 16.1675 31.4921 16.2405V5.20453C31.457 4.30485 31.5485 3.4047 31.7637 2.5305C31.8335 2.2692 31.9618 2.02725 32.139 1.82306C32.3162 1.61887 32.5376 1.4578 32.7863 1.35212C33.4947 1.09923 34.2416 0.971431 34.9937 0.974433V0L28.4281 0.147298L19.5646 25.4108L10.1427 0H0V0.981986C0.770836 0.975482 1.53692 1.10328 2.26399 1.35967C2.50752 1.46515 2.72325 1.62582 2.89416 1.829C3.06506 2.03218 3.18648 2.27233 3.24882 2.5305C3.45003 3.40687 3.53503 4.30594 3.50163 5.20453V27.8884C3.52798 29.027 3.44331 30.1655 3.24882 31.2876C3.15646 31.9774 2.80413 32.6057 2.26399 33.0438C1.58262 33.4776 0.805125 33.737 0 33.7992L0 34.7472C0.611158 34.6736 1.22585 34.6333 1.84138 34.6264C2.59604 34.6264 3.32051 34.5999 4.04876 34.5999C4.86757 34.5999 5.73166 34.5999 6.64103 34.6264C7.5504 34.6528 8.29374 34.683 8.87106 34.7472V33.7652C7.87994 33.718 6.91017 33.4605 6.02598 33.0098C5.70416 32.8026 5.4303 32.5289 5.22271 32.2072C5.01512 31.8854 4.8786 31.5229 4.82229 31.1441C4.61198 29.936 4.51972 28.7103 4.54684 27.4843V3.14236L16.5573 34.9096H17.2855L28.247 3.80331V29.5578C28.2788 30.4474 28.1874 31.3371 27.9753 32.2016C27.9061 32.4714 27.7724 32.7203 27.5857 32.9269C27.399 33.1335 27.165 33.2916 26.9037 33.3875C26.1448 33.6199 25.3577 33.747 24.5643 33.7652V34.7472H34.9937V33.7652C34.2435 33.7473 33.4999 33.6201 32.7863 33.3875C32.5349 33.2861 32.3111 33.1264 32.1333 32.9216C31.9555 32.7167 31.8289 32.4725 31.7637 32.2092C31.5517 31.3447 31.4603 30.4549 31.4921 29.5653V17.249C31.9255 17.2772 32.3532 17.3636 32.7637 17.5058C33.2133 17.6938 33.6107 17.988 33.9221 18.3631C34.4155 18.958 34.8502 19.5992 35.2201 20.278L41.8611 31.5709C42.3177 32.3564 42.4196 32.9079 42.1781 33.2176C41.9366 33.5273 41.2083 33.7161 39.9971 33.7803V34.7472H51.9585V33.7652C51.2289 33.4979 50.5519 33.1041 49.9586 32.6019Z"/></svg>
       </a>
-      <nav class="nav-links">
-        <a href="#work" data-label="Work">Work</a>
-        <a href="#timeline" data-label="Timeline">Timeline</a>
-        <a href="#about" data-label="About">About</a>
-        <a href="#contact" data-label="Contact">Contact</a>
+      <p class="hero-name">Mostafa Elkorashy</p>
+      <nav class="hero-nav" aria-label="Sections">
+        <a href="#work">Work</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
       </nav>
+
+      <h1 class="hero-headline">
+        <span class="hero-line hero-line--1">Product</span>
+        <span class="hero-line hero-line--2">Designer <span class="hero-amp">&amp;</span></span>
+        <span class="hero-line hero-line--3">Builder</span>
+      </h1>
+
+      <div class="hero-subtext" data-snap>
+        <p>A UI/UX Designer who crossed into front-end, so design and build never fall out of sync.</p>
+      </div>
+
+      <a href="#contact" class="btn hero-button">
+        Contact
+        <svg class="hero-button-arrow" viewBox="0 0 60 14" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M0 7h57M50 1l7 6-7 6" stroke-linecap="square"/></svg>
+      </a>
+
+      <div class="mk hero-mk" aria-hidden="true">
+        <img src="assets/mk-graphic@3x.png" alt="" />
+      </div>
     </header>
 
-    <section class="hero container-grid">
-      <p class="eyebrow">Mostafa Elkorashy</p>
-      <div class="headline-wrap">
-        <h1 class="headline">
-          <span class="accent">Product</span><br />Designer &amp;<br />Builder
-        </h1>
-        <a href="#contact" class="cta">Contact</a>
-      </div>
-      <p class="subtext">
-        A UI/UX Designer who crossed into front-end, so design and build
-        never fall out of sync.
-      </p>
-    </section>
+    <main>
+      <!-- Selected Work: rows 11–16 -->
+      <section class="section gap work" id="work" aria-labelledby="work-heading">
+        <h2 class="heading work-heading" data-snap id="work-heading">Selected Work</h2>
 
-    <section class="work container-grid" id="work">
-      <h2 class="section-title">Selected Work</h2>
-      <div class="work-cards">
-        <article class="work-card">
-          <div class="work-card-image"></div>
-          <div class="work-card-text">
-            <div class="work-card-info">
-              <h3 class="work-card-title">Visual Brain</h3>
-              <p class="work-card-description">
-                A local-first inspiration library I designed and built.
-              </p>
+        <article class="card card--1">
+          <div class="card-image"></div>
+          <div class="card-text">
+            <div class="card-info">
+              <h3 class="card-title">Visual Brain</h3>
+              <p class="card-desc">A local-first inspiration library I designed and built.</p>
             </div>
-            <a href="#" class="work-card-link">View Project ↗</a>
+            <a href="visual-brain.html" class="card-link">View Project ↗</a>
           </div>
         </article>
-        <article class="work-card">
-          <div class="work-card-image"></div>
-          <div class="work-card-text">
-            <div class="work-card-info">
-              <h3 class="work-card-title">Website Builder</h3>
-              <p class="work-card-description">
-                A local-first inspiration library I designed and built.
-              </p>
+
+        <article class="card card--2">
+          <div class="card-image"></div>
+          <div class="card-text">
+            <div class="card-info">
+              <h3 class="card-title">Website Builder</h3>
+              <p class="card-desc">A local-first inspiration library I designed and built.</p>
             </div>
-            <a href="#" class="work-card-link">View Project ↗</a>
+            <a href="website-builder.html" class="card-link">View Project ↗</a>
           </div>
         </article>
-      </div>
-    </section>
+      </section>
 
-    <section class="timeline container-grid" id="timeline">
-      <h2 class="section-title">Timeline</h2>
-      <div class="timeline-list">
-        <div class="timeline-row">
-          <div class="timeline-row-content">
-            <span class="timeline-year">2017</span>
-            <p class="timeline-description">
-              Started at the Faculty of Applied Arts, majoring in graphic
-              design.
-            </p>
-          </div>
-          <div class="timeline-divider"></div>
-        </div>
-        <div class="timeline-row">
-          <div class="timeline-row-content">
-            <span class="timeline-year">2019</span>
-            <p class="timeline-description">
-              Started my career as a freelance logo designer.
-            </p>
-          </div>
-          <div class="timeline-divider"></div>
-        </div>
-        <div class="timeline-row">
-          <div class="timeline-row-content">
-            <span class="timeline-year">2020</span>
-            <p class="timeline-description">Moved into UI/UX design.</p>
-          </div>
-          <div class="timeline-divider"></div>
-        </div>
-        <div class="timeline-row">
-          <div class="timeline-row-content">
-            <span class="timeline-year">2021</span>
-            <p class="timeline-description">
-              Freelance UI/UX work (projects and part-time) across multiple
-              clients, and my first full-time job.
-            </p>
-          </div>
-          <div class="timeline-divider"></div>
-        </div>
-        <div class="timeline-row">
-          <div class="timeline-row-content">
-            <span class="timeline-year">2022</span>
-            <p class="timeline-description">
-              Joined Ynmo as a full-time product designer; graduated the same
-              year.
-            </p>
-          </div>
-          <div class="timeline-divider"></div>
-        </div>
-        <div class="timeline-row">
-          <div class="timeline-row-content">
-            <span class="timeline-year">2023</span>
-            <p class="timeline-description">Mandatory army service.</p>
-          </div>
-          <div class="timeline-divider"></div>
-        </div>
-        <div class="timeline-row">
-          <div class="timeline-row-content">
-            <span class="timeline-year">2024</span>
-            <p class="timeline-description">
-              Rejoined Ynmo as a product designer.
-            </p>
-          </div>
-          <div class="timeline-divider"></div>
-        </div>
-        <div class="timeline-row">
-          <div class="timeline-row-content">
-            <span class="timeline-year">2026</span>
-            <p class="timeline-description">
-              Started coding; designed and built Visual Brain, my own
-              local-first inspiration library tool.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
+      <!-- Timeline: rows 19–28 -->
+      <section class="section gap timeline" id="timeline" aria-labelledby="timeline-heading">
+        <h2 class="heading timeline-heading" data-snap id="timeline-heading">Timeline</h2>
+        <ol class="tl-list">
+          <li class="tl-row" data-snap style="--i: 0"><span class="tl-year">2017</span><p class="tl-desc">Started at the Faculty of Applied Arts, majoring in Graphic Design.</p></li>
+          <li class="tl-row" data-snap style="--i: 1"><span class="tl-year">2019</span><p class="tl-desc">Started my career as a Freelance Logo Designer.</p></li>
+          <li class="tl-row" data-snap style="--i: 2"><span class="tl-year">2020</span><p class="tl-desc">Moved into UI/UX Design.</p></li>
+          <li class="tl-row" data-snap style="--i: 3"><span class="tl-year">2021</span><p class="tl-desc">Freelance UI/UX (Projects, Full-time, and Part-time) across multiple clients.</p></li>
+          <li class="tl-row" data-snap style="--i: 4"><span class="tl-year">2022</span><p class="tl-desc">Joined Ynmo as a full-time Product Designer; graduated the same year.</p></li>
+          <li class="tl-row" data-snap style="--i: 5"><span class="tl-year">2023</span><p class="tl-desc">Mandatory Army Service.</p></li>
+          <li class="tl-row" data-snap style="--i: 6"><span class="tl-year">2024</span><p class="tl-desc">Rejoined Ynmo as a Product Designer.</p></li>
+          <li class="tl-row" data-snap style="--i: 7"><span class="tl-year">2026</span><p class="tl-desc">Started coding; designed and built Visual Brain, my own local-first inspiration library tool.</p></li>
+        </ol>
+      </section>
 
-    <section class="about container-grid" id="about">
-      <h2 class="section-title">About Me</h2>
-      <div class="about-content">
-        <div class="about-text">
-          <p>
-            I&apos;ve been obsessed with technology for as long as I can
-            remember. Nokia phones and Windows XP were sort of my childhood.
-            Then came gaming, MMORPGs in particular, which is where I learned
-            a lot of my English. That helped me later in my career.
-          </p>
-          <p>
-            That obsession followed me to high school, when I was aiming for
-            a CS degree, but life pointed me to Applied Arts instead, where I
-            got to be a graphic designer and handle computers in different
-            ways.
-          </p>
-          <p>
-            I started as a generalist, learning the fundamentals across
-            every corner of design. Then, in 2020, the lockdown got me
-            interested in user interface design. With my background in
-            graphic design, I thought it would be an easy move, but it was
-            just the start of something much bigger and more challenging.
-          </p>
-          <p>
-            That&apos;s when the English I learned from gaming finally paid
-            off. In 2021, I started my first full-time job as a UI/UX
-            designer at Reliant Technologies in New Jersey, USA. I found out
-            that remote work really can work, and I&apos;ve been remote ever
-            since.
-          </p>
-          <p>
-            Now it&apos;s 2026 and I think we&apos;ve reached the age of the
-            <strong>Design Engineer</strong>. Design and production
-            shouldn&apos;t be two different species. When a designer steps
-            into the front-end, writing the HTML and CSS themselves, every
-            pixel lines up on both sides of the handoff. That&apos;s the gap
-            I want to close.
-          </p>
-          <p>
-            <strong>Other Interests:</strong><br />
-            Cars · Motorcycles · Gaming · Lifting · Photography
-          </p>
+      <!-- About Me: rows 31–38 -->
+      <section class="section gap about" id="about" aria-labelledby="about-heading">
+        <h2 class="heading about-heading" data-snap id="about-heading">About Me</h2>
+        <div class="about-text" data-snap>
+          <p>I've been obsessed with technology for as long as I can remember. Nokia phones and Windows XP were sort of my childhood. Then came gaming, MMORPGs in particular, which is where I learned a lot of my English. That helped me later in my career.</p>
+          <p>That obsession followed me to high school, when I was aiming for a CS degree, but life pointed me to Applied Arts instead, where I got to be a graphic designer and handle computers in different ways.</p>
+          <p>I started as a generalist, learning the fundamentals across every corner of design. Then, in 2020, the lockdown got me interested in user interface design. With my background in graphic design, I thought it would be an easy move, but it was just the start of something much bigger and more challenging.</p>
+          <p>That's when the English I learned from gaming finally paid off. In 2021, I started my first full-time job as a UI/UX designer at Reliant Technologies in New Jersey, USA. I found out that remote work really can work, and I've been remote ever since.</p>
+          <p>Now it's 2026 and I think we've reached the age of the <strong>Design Engineer</strong>. Design and production shouldn't be two different species. When a designer steps into the front-end, writing the HTML and CSS themselves, every pixel lines up on both sides of the handoff. That's the gap I want to close.</p>
+          <p><strong>Other Interests:</strong><br />Cars · Motorcycles · Gaming · Lifting</p>
         </div>
-        <div class="about-picture" aria-hidden="true"></div>
-      </div>
-    </section>
+        <div class="about-picture" role="img" aria-label="Photo of Mostafa Elkorashy (coming soon)"></div>
+      </section>
 
-    <section class="contact-cta container-grid" id="contact">
-      <p class="contact-cta-line">Let&apos;s design something</p>
-      <a href="mailto:m.elkorashy@gmail.com" class="contact-cta-line">m.elkorashy@gmail.com</a>
-    </section>
+      <!-- Contact CTA: rows 41–42 -->
+      <section class="section gap contact" id="contact" aria-labelledby="contact-heading">
+        <h2 class="cta-line cta-line--1" id="contact-heading">Got a project in mind?</h2>
+        <p class="cta-line cta-line--2"><a href="mailto:m.elkorashy@gmail.com">m.elkorashy@gmail.com</a></p>
+        <img class="cta-arrow" src="assets/cta-arrow.svg" alt="" />
+      </section>
+    </main>
+
+    <!-- Footer: rows 44–46 (shared with the case-study pages) -->
+    <footer class="section space site-footer">
+
+        <a href="#top" class="btn cta-btn cta-btn--top">Back to top ↑</a>
+        <a href="https://github.com/melkorashyux" class="btn cta-btn cta-btn--github" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.37 0 0 5.37 0 12C0 17.31 3.435 21.795 8.205 23.385C8.805 23.49 9.03 23.13 9.03 22.815C9.03 22.53 9.015 21.585 9.015 20.58C6 21.135 5.22 19.845 4.98 19.17C4.845 18.825 4.26 17.76 3.75 17.475C3.33 17.25 2.73 16.695 3.735 16.68C4.68 16.665 5.355 17.55 5.58 17.91C6.66 19.725 8.385 19.215 9.075 18.9C9.18 18.12 9.495 17.595 9.84 17.295C7.17 16.995 4.38 15.96 4.38 11.37C4.38 10.065 4.845 8.985 5.61 8.145C5.49 7.845 5.07 6.615 5.73 4.965C5.73 4.965 6.735 4.65 9.03 6.195C9.99 5.925 11.01 5.79 12.03 5.79C13.05 5.79 14.07 5.925 15.03 6.195C17.325 4.635 18.33 4.965 18.33 4.965C18.99 6.615 18.57 7.845 18.45 8.145C19.215 8.985 19.68 10.05 19.68 11.37C19.68 15.975 16.875 16.995 14.205 17.295C14.64 17.67 15.015 18.39 15.015 19.515C15.015 21.12 15 22.41 15 22.815C15 23.13 15.225 23.505 15.825 23.385C18.2072 22.5807 20.2772 21.0497 21.7437 19.0074C23.2101 16.965 23.9993 14.5143 24 12C24 5.37 18.63 0 12 0Z"/></svg>
+          Github
+        </a>
+        <a href="#" class="btn cta-btn cta-btn--x" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12.6 0.75H15.054L9.694 6.892L16 15.25H11.063L7.196 10.18L2.771 15.25H0.316L6.049 8.68L0 0.75H5.063L8.558 5.383L12.6 0.75ZM11.74 13.778H13.1L4.323 2.145H2.865L11.74 13.778Z"/></svg>
+          X (Twitter)
+        </a>
+        <a href="#" class="btn cta-btn cta-btn--linkedin" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M1 2.838C1.00053 2.3507 1.19435 1.8835 1.53892 1.53892C1.8835 1.19435 2.35069 1.00053 2.838 1H21.16C21.4016 0.999608 21.6409 1.04687 21.8641 1.13907C22.0874 1.23127 22.2903 1.36661 22.4612 1.53734C22.6322 1.70807 22.7677 1.91083 22.8602 2.13401C22.9526 2.3572 23.0001 2.59643 23 2.838V21.16C23 21.6478 22.8063 22.1157 22.4614 22.4607C22.1166 22.8058 21.6488 22.9997 21.161 23H2.838C2.35052 22.9995 1.88318 22.8055 1.53857 22.4607C1.19396 22.1159 1.00026 21.6485 1 21.161V2.838ZM9.708 9.388H12.687V10.884C13.117 10.024 14.217 9.25 15.87 9.25C19.039 9.25 19.79 10.963 19.79 14.106V19.928H16.583V14.822C16.583 13.032 16.153 12.022 15.061 12.022C13.546 12.022 12.916 13.111 12.916 14.822V19.928H9.708V9.388ZM4.208 19.791H7.416V9.25H4.208V19.791ZM7.875 5.812C7.88105 6.08668 7.83217 6.35979 7.73124 6.61532C7.63031 6.87084 7.47935 7.10364 7.28723 7.30003C7.09511 7.49643 6.8657 7.65248 6.61245 7.75901C6.35921 7.86554 6.08724 7.92042 5.8125 7.92042C5.53776 7.92042 5.26579 7.86554 5.01255 7.75901C4.7593 7.65248 4.52989 7.49643 4.33777 7.30003C4.14565 7.10364 3.99469 6.87084 3.89376 6.61532C3.79283 6.35979 3.74395 6.08668 3.75 5.812C3.76187 5.27286 3.98439 4.75979 4.36989 4.38269C4.75539 4.00558 5.27322 3.79442 5.8125 3.79442C6.35178 3.79442 6.86961 4.00558 7.25511 4.38269C7.64061 4.75979 7.86313 5.27286 7.875 5.812Z"/></svg>
+          LinkedIn
+        </a>
+
+        <div class="cta-footer" data-snap>
+          <p><strong>Designed and built by Mostafa Elkorashy</strong></p>
+          <p>Open to freelance &amp; full-time offers remotely</p>
+        </div>
+
+        <div class="mk cta-mk" aria-hidden="true">
+          <img src="assets/mk-graphic@3x.png" alt="" />
+        </div>
+    </footer>
   </div>
 
   <script src="https://unpkg.com/lenis@1.3.27/dist/lenis.min.js"></script>
-  <script src="animations.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
