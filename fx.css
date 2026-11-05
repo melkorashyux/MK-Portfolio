@@ -1,0 +1,224 @@
+/* Animation presets (fx.js): hidden state before reveal, ambient layers, and
+   the tuning panel. */
+
+@media (prefers-reduced-motion: no-preference) {
+  html.fx-pending :is(.hero-logo, .hero-name, .hero-nav a, .hero-line, .hero-subtext,
+    .hero-button, .mk, .heading, .card-image, .card-text, .tl-year, .tl-desc,
+    .about-text, .about-picture, .cta-line, .cta-arrow, .cta-btn, .cta-footer,
+    .cs-heading, .cs-cell, .cs-image) { opacity: 0; }
+}
+.fx-wait { opacity: 0; }
+
+/* Dither shader canvas, laid over its block */
+.fx-surface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Reveal overlays (green ghost pixels, scan beam) */
+.fx-ghost {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.fx-beam-local {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 56px;
+  pointer-events: none;
+  z-index: 5;
+  background: linear-gradient(to bottom, transparent, rgb(9 253 66 / 0.14));
+  border-bottom: 2px solid var(--color-accent-green, #09fd42);
+  box-shadow: 0 6px 14px -4px rgb(9 253 66 / 0.6);
+}
+
+/* Ambient layers */
+.fx-trail {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+.fx-scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 1) 0 1px, transparent 1px 3px);
+}
+.fx-beam {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  z-index: 51;
+  pointer-events: none;
+  background: var(--color-accent-green, #09fd42);
+  box-shadow: 0 0 18px 3px rgb(9 253 66 / 0.55);
+}
+
+/* ---------- Tuning panel ---------- */
+
+.fx-toggle {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1001;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #272727;
+  background: #1f1f1f;
+  color: #09fd42;
+  font: 600 12px/1 "Geist Mono", ui-monospace, monospace;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.fx-toggle:hover { background: #09fd42; color: #1f1f1f; }
+
+.fx-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 60px;
+  z-index: 1000;
+  width: min(320px, calc(100vw - 32px));
+  max-height: calc(100vh - 92px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #272727;
+  background: rgb(18 18 18 / 0.97);
+  color: #b8b8b8;
+  font: 400 11px/1.4 "Geist Mono", ui-monospace, monospace;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.5);
+}
+.fx-panel[hidden] { display: none; }
+.fx-panel h4 {
+  margin: 0;
+  padding: 10px 12px 8px;
+  border-top: 1px solid #272727;
+  color: #626161;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.fx-panel h4:first-child { border-top: 0; }
+.fx-versions {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  margin: 0 12px;
+  background: #272727;
+  border: 1px solid #272727;
+}
+.fx-versions button {
+  display: grid;
+  gap: 2px;
+  padding: 8px 0;
+  border: 0;
+  background: #1f1f1f;
+  color: #b8b8b8;
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+.fx-versions button b { font-size: 14px; font-weight: 300; color: #626161; }
+.fx-versions button:hover { color: #fff; }
+.fx-versions button[aria-pressed="true"] { background: #09fd42; color: #121212; }
+.fx-versions button[aria-pressed="true"] b { color: #121212; }
+.fx-desc { margin: 8px 12px 10px; color: #8a8a8a; }
+.fx-row {
+  display: grid;
+  grid-template-columns: 96px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+}
+.fx-row label { color: #b8b8b8; }
+.fx-row output { text-align: right; color: #09fd42; font-variant-numeric: tabular-nums; }
+.fx-row input[type="range"] { width: 100%; accent-color: #09fd42; }
+.fx-row input[type="checkbox"] { justify-self: start; accent-color: #09fd42; }
+.fx-row input[type="color"] { width: 100%; height: 20px; padding: 0; border: 1px solid #272727; background: none; }
+.fx-row select {
+  width: 100%;
+  padding: 3px 4px;
+  border: 1px solid #272727;
+  background: #1f1f1f;
+  color: #fff;
+  font: inherit;
+}
+.fx-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: 8px;
+  border-top: 1px solid #272727;
+  background: #272727;
+}
+.fx-actions button {
+  padding: 10px 0;
+  border: 0;
+  background: #1f1f1f;
+  color: #09fd42;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fx-actions button:hover { background: #09fd42; color: #121212; }
+.fx-note { min-height: 1.4em; padding: 6px 12px 10px; color: #626161; }
+
+/* Page-wide cursor light (dither shader). Behind: drawn under the page's
+   blocks, so it only lights the empty grid. Above: over everything. */
+.fx-surface.fx-cursor {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: auto;
+}
+.fx-surface.fx-cursor--above { z-index: 60; mix-blend-mode: screen; }
+
+/* ---------- Button micro-interaction (fx.js: buttons) ----------
+   The green fill is its own layer that dithers in; the label flips to dark
+   once half the pixels are in (.fx-on), and the arrow steps forward. */
+.btn.fx-btn {
+  position: relative;
+  isolation: isolate;
+  transition: none;
+}
+.btn.fx-btn:hover,
+.btn.fx-btn:active,
+.btn.fx-btn:focus-visible {
+  background: var(--color-cell-highlight);
+  color: var(--color-accent-green);
+}
+.btn.fx-btn.fx-on { color: var(--color-cell-highlight); }
+.fx-btn-fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-accent-green);
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  pointer-events: none;
+}
+.fx-btn-fill.fx-press { animation: fx-press 0.18s steps(1) both; }
+@keyframes fx-press {
+  0%   { opacity: 1; }
+  25%  { opacity: 0.2; }
+  50%  { opacity: 1; }
+  75%  { opacity: 0.45; }
+  100% { opacity: 1; }
+}
+.fx-btn .hero-button-arrow,
+.fx-btn svg { transition: transform 0.24s steps(4, end); }
+.fx-btn.fx-on .hero-button-arrow { transform: translateX(var(--fx-arrow-shift, 8px)); }
+.fx-btn.fx-on.cta-btn--github svg,
+.fx-btn.fx-on.cta-btn--x svg,
+.fx-btn.fx-on.cta-btn--linkedin svg { transform: translateY(calc(var(--fx-arrow-shift, 8px) * -0.25)); }
