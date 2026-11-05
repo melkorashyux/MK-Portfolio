@@ -293,15 +293,22 @@ a { color: inherit; }
 }
 .card-title { font-size: calc(28 * var(--px)); font-weight: 700; line-height: 1.2857; }
 .card-desc { font-size: calc(14 * var(--px)); line-height: 1.2857; color: var(--color-text-muted); }
+.card { position: relative; }
 .card-link {
-  align-self: flex-start;
-  font-size: calc(24 * var(--px));
-  font-weight: 700;
-  line-height: 1.2857;
   color: var(--color-accent-green);
   text-decoration: none;
 }
-.card-link:hover { text-decoration: underline; text-underline-offset: 0.15em; }
+/* Whole card is the click target */
+.card-link::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.card-arrow {
+  display: inline-block;
+  margin-left: 0.25em;
+  font-weight: 400;
+  transition: transform 0.24s steps(4, end);
+}
+.card:hover .card-link { text-decoration: underline; text-underline-offset: 0.15em; text-decoration-thickness: 2px; }
+.card:hover .card-arrow { transform: translate(0.12em, -0.12em); }
+.card-link:focus-visible { outline: 2px solid var(--color-accent-green); outline-offset: 4px; }
 
 /* ---------- Timeline: rows 19–28 ---------- */
 
@@ -619,7 +626,6 @@ a { color: inherit; }
   .card-text { height: var(--cell); gap: 6px; padding: 0 var(--inset); }
   .card-title { font-size: clamp(17px, 5.2cqw, 28px); }
   .card-desc { font-size: clamp(12px, 3.3cqw, 14px); }
-  .card-link { font-size: clamp(15px, 4.4cqw, 24px); }
 
   /* Timeline */
   .tl-list { display: block; height: auto; margin-top: var(--cell); }

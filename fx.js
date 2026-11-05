@@ -23,6 +23,9 @@
   const STORE_KEY = "fx-config";
   const root = document.documentElement;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Photosensitivity limits for any blinking effect
+  const MAX_FLASH_HZ = 3;
+  const FLICKER_FLOOR = 0.6;
 
   const DEFAULTS = {
     version: "boot",
@@ -31,7 +34,7 @@
     versions: {
       dither: { duration: 750, stagger: 55, order: "diagonal", pixel: 4, matrix: 8, ghost: true },
       decode: { duration: 1000, stagger: 45, order: "rows", glyphs: "symbols", wipe: true, steps: 6 },
-      boot: { duration: 600, stagger: 35, order: "diagonal", flickers: 3, outline: true, powerOn: true, gridFlicker: true },
+      boot: { duration: 600, stagger: 35, order: "diagonal", flickers: 1, outline: true, powerOn: true, gridFlicker: true },
       scan: { duration: 700, stagger: 60, order: "rows", beam: true, rgbSplit: 4, scanlines: 0.08 },
       field: { duration: 650, stagger: 30, order: "random", cellDiv: 8, ghost: true, trail: true, trailDiv: 2, trailFade: 900, trailOpacity: 0.35 },
     },
@@ -40,11 +43,11 @@
     buttons: {
       on: true,
       duration: 200, // fill dither in/out, ms
-      pixel: 3, // CSS px per fill pixel
+      pixel: 2, // CSS px per fill pixel
       matrix: 4, // Bayer matrix size: 2 | 4 | 8
       scramble: true, // label decodes from glyphs on hover
-      scrambleDuration: 320,
-      arrowShift: 8, // px the arrow steps forward
+      scrambleDuration: 180,
+      arrowShift: 4, // px the arrow steps forward
       press: true, // flicker on press
     },
     shader: {
@@ -95,10 +98,10 @@
       { key: "wipe", label: "Block wipe", type: "toggle" },
       { key: "steps", label: "Wipe steps", type: "range", min: 0, max: 16, step: 1, unit: "" }],
     boot: [...common,
-      { key: "flickers", label: "Flickers", type: "range", min: 0, max: 8, step: 1, unit: "" },
+      { key: "flickers", label: "Flickers", type: "range", min: 0, max: 2, step: 1, unit: "" },
       { key: "outline", label: "Outline", type: "toggle" },
       { key: "powerOn", label: "CRT expand", type: "toggle" },
-      { key: "gridFlicker", label: "Grid flicker", type: "toggle" }],
+      { key: "gridFlicker", label: "Grid fade-in", type: "toggle" }],
     scan: [...common,
       { key: "beam", label: "Beam", type: "toggle" },
       { key: "rgbSplit", label: "RGB split", type: "range", min: 0, max: 16, step: 1, unit: "px" },
@@ -368,21 +371,25 @@
       enter(o) {
         if (!o.gridFlicker) return;
         document.querySelectorAll(".page-grid").forEach((grid) => {
+          // Photosensitivity: the grid covers the whole viewport, so it
+          // fades in smoothly instead of blinking.
           tween(grid, 0, 700 / config.speed, (p) => {
-            const seg = Math.floor(p * 7);
-            setStyle(grid, "opacity", p >= 1 ? "1" : seg % 2 ? "0.25" : String(clamp01(p * 1.4)));
+            setStyle(grid, "opacity", String(easeOut(p)));
           }, () => clean(grid));
         });
       },
       reveal(el, delay, o) {
         const flick = 0.55;
-        const phase = Math.random();
+        // Photosensitivity (WCAG 2.3.1): dips are shallow (never below
+        // FLICKER_FLOOR) and capped at MAX_FLASH_HZ, whatever the panel says.
+        const span = (o.duration / config.speed) * flick / 1000;
+        const flickers = Math.min(o.flickers, Math.max(1, Math.floor(span * MAX_FLASH_HZ)));
         tween(el, delay, o.duration, (p) => {
           let op = 1;
           if (p === 0) op = 0;
-          else if (p < flick && o.flickers > 0) {
-            const seg = Math.floor((p / flick) * o.flickers * 2 + phase);
-            op = seg % 2 ? 0.08 : 1;
+          else if (p < flick && flickers > 0) {
+            const seg = Math.floor((p / flick) * flickers * 2);
+            op = seg % 2 ? FLICKER_FLOOR : easeOut(clamp01((p / flick) * flickers * 2));
           }
           setStyle(el, "opacity", String(op));
           if (o.powerOn) {
@@ -558,7 +565,7 @@
     clean(el);
     el.classList.remove("fx-wait");
     el.__fxState = "done";
-    io.unobserve(el);
+    observerFor(el).unobserve(el);
   }
 
   function runBatch(els) {
@@ -567,7 +574,7 @@
     const sp = config.speed;
     const ds = delays(els, o.order, o.stagger / sp);
     els.forEach((el, i) => {
-      io.unobserve(el);
+      observerFor(el).unobserve(el);
       el.__fxState = "run";
       el.classList.remove("fx-wait");
       preset.reveal(el, ds[i], { ...o, duration: o.duration / sp });
@@ -575,7 +582,7 @@
     });
   }
 
-  const io = new IntersectionObserver((entries) => {
+  function onIntersect(entries) {
     const batch = [];
     for (const e of entries) {
       if (e.target.__fxState !== "wait") continue;
@@ -583,7 +590,13 @@
       else if (e.boundingClientRect.bottom < 0) show(e.target);
     }
     if (batch.length) runBatch(batch);
-  }, { rootMargin: "0px 0px -6% 0px" });
+  }
+  const io = new IntersectionObserver(onIntersect, { rootMargin: "0px 0px -6% 0px" });
+  // Timeline rows wait until they reach TIMELINE_LINE of the viewport, so
+  // the years come in one by one as you scroll instead of all at once.
+  const TIMELINE_LINE = 0.7;
+  const ioTimeline = new IntersectionObserver(onIntersect, { rootMargin: `0px 0px -${(1 - TIMELINE_LINE) * 100}% 0px` });
+  const observerFor = (el) => (el.closest(".tl-row") ? ioTimeline : io);
 
   let activeVersion = null;
   function replay() {
@@ -594,8 +607,8 @@
       if (reduceMotion) { el.__fxState = "done"; return; }
       el.__fxState = "wait";
       el.classList.add("fx-wait");
-      io.unobserve(el);
-      io.observe(el);
+      observerFor(el).unobserve(el);
+      observerFor(el).observe(el);
     });
     PRESETS[config.version].enter?.(config.versions[config.version]);
     shader.resetIntro();

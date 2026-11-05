@@ -208,17 +208,16 @@
   mask-repeat: repeat;
   pointer-events: none;
 }
-.fx-btn-fill.fx-press { animation: fx-press 0.18s steps(1) both; }
+/* Single soft dip, not a strobe (photosensitivity) */
+.fx-btn-fill.fx-press { animation: fx-press 0.16s ease-out both; }
 @keyframes fx-press {
   0%   { opacity: 1; }
-  25%  { opacity: 0.2; }
-  50%  { opacity: 1; }
-  75%  { opacity: 0.45; }
+  40%  { opacity: 0.75; }
   100% { opacity: 1; }
 }
 .fx-btn .hero-button-arrow,
 .fx-btn svg { transition: transform 0.24s steps(4, end); }
-.fx-btn.fx-on .hero-button-arrow { transform: translateX(var(--fx-arrow-shift, 8px)); }
+.fx-btn.fx-on .hero-button-arrow { transform: translateX(var(--fx-arrow-shift, 4px)); }
 .fx-btn.fx-on.cta-btn--github svg,
 .fx-btn.fx-on.cta-btn--x svg,
-.fx-btn.fx-on.cta-btn--linkedin svg { transform: translateY(calc(var(--fx-arrow-shift, 8px) * -0.25)); }
+.fx-btn.fx-on.cta-btn--linkedin svg { transform: translateY(calc(var(--fx-arrow-shift, 4px) * -0.25)); }
