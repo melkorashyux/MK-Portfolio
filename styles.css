@@ -57,6 +57,14 @@ a { color: inherit; }
      is measured against .page by every descendant. */
   --px: min(calc(100cqw / 1440), calc(100svh / 960));
   --cell: calc(120 * var(--px));
+  /* Side fade: the grid outside the 12 content columns fades out toward the
+     window edges, so cut squares at the edges never show. */
+  --side: calc((100cqw - 12 * var(--cell)) / 2);
+  --side-fade: linear-gradient(90deg,
+    transparent 0,
+    #000 var(--side),
+    #000 calc(100cqw - var(--side)),
+    transparent 100cqw);
 }
 
 .page-grid {
@@ -68,6 +76,8 @@ a { color: inherit; }
   background-size: var(--cell) var(--cell);
   /* align the lines with the centered content's columns */
   background-position: calc((100cqw - 12 * var(--cell)) / 2) 0;
+  -webkit-mask-image: var(--side-fade);
+  mask-image: var(--side-fade);
   pointer-events: none;
 }
 
@@ -96,6 +106,9 @@ a { color: inherit; }
   height: var(--cell);
   background: var(--color-page);
   box-shadow: inset 0 1px var(--color-grid-line), inset 0 -1px var(--color-grid-line);
+  /* the band spans the window like the grid, so its lines fade the same way */
+  -webkit-mask-image: var(--side-fade);
+  mask-image: var(--side-fade);
   pointer-events: none;
 }
 
@@ -249,6 +262,12 @@ a { color: inherit; }
 /* ---------- Selected Work: rows 11–16 ---------- */
 
 .work { grid-template-rows: repeat(6, var(--cell)); }
+/* The hero's last row (8) is already a row of empty squares, so this gap
+   only needs the flat band: 1 row of squares + 1 band. (Desktop only: on
+   phones the hero ends with the MK graphic, so the full gap stays.) */
+@media (min-width: 900px) {
+  .hero + main > .work.gap { margin-top: var(--cell); }
+}
 .work-heading { grid-column: 2 / 12; }
 
 .card {
@@ -414,6 +433,10 @@ a { color: inherit; }
   line-height: 1.2857;
   letter-spacing: -0.02em;
   color: var(--color-text-muted);
+  /* hide the grid lines behind the credit, but keep its left edge so the
+     square outside it (column 1) stays closed */
+  background: var(--color-page);
+  box-shadow: inset 1px 0 var(--color-grid-line);
 }
 .cta-footer strong { font-weight: 600; color: var(--color-white-pure); }
 
