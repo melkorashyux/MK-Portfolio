@@ -68,7 +68,7 @@
     bar.append(a);
     return a;
   });
-  const jump = el("a", null, `<span class="kb-n">:</span><span class="kb-l">Jump</span>`);
+  const jump = el("a", "kb-jump", `<span class="kb-n">:</span><span class="kb-l">Jump</span>`);
   jump.href = "#";
   jump.addEventListener("click", (e) => { e.preventDefault(); openPalette(); });
   bar.append(jump);

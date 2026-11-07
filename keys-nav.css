@@ -112,6 +112,7 @@ html.nav-docked .keys-bar { opacity: 1; pointer-events: auto; transform: none; }
   .keys-bar a { flex: 0 0 auto; }
   .keys-bar .kb-n { padding-inline: 8px; }
   .keys-bar .kb-l { padding-inline: 10px; }
+  .keys-bar .kb-jump { display: none; } /* no keyboard to type into it */
 }
 
 /* ---------- Jump line ---------- */
