@@ -67,6 +67,10 @@
       radius: 0.28, // cursor light radius (fraction of the block)
       color: "#09fd42",
       intro: 2150, // ms for a block's pixels to fill in
+      edge: 44, // CSS px: width of the dither band around a media (photo/video) slot's edges
+      edgeDensity: 0.62, // brightness at the very edge, fading to nothing inward
+      edgeColor: "#09fd42", // media slots' dither color (accent green)
+      edgeOpacity: 0.08, // ...drawn at this opacity
       cursorEverywhere: false, // a smaller dither light follows the cursor outside the blocks above
       cursorRadius: 10, // CSS px
       cursorLight: 0.3,
@@ -625,7 +629,7 @@
   const FRAG = `
 precision highp float;
 uniform vec2 uRes;
-uniform float uSeed, uTime, uMode, uPixel, uMatrix, uDot, uDensity, uScale, uContrast, uReveal, uRadius;
+uniform float uSeed, uTime, uMode, uPixel, uMatrix, uDot, uDensity, uScale, uContrast, uReveal, uRadius, uEdge, uAlpha;
 uniform vec3 uMouse, uColor;
 uniform sampler2D uSrc;
 
@@ -661,6 +665,11 @@ void main(){
     v = m * (uDensity + (n - .5) * 1.3);
   } else if (uMode < 1.5) {     // empty slot: free-flowing noise
     v = uDensity + (n - .5) * 1.5;
+    if (uEdge > 0.) {           // video slot: only a band along the edges, fading inward
+      vec2 px = uv * uRes;
+      float e = min(min(px.x, uRes.x - px.x), min(px.y, uRes.y - px.y));
+      v *= 1. - smoothstep(0., uEdge, e);
+    }
   } else if (uMode < 2.5) {     // real image: its luminance, lightly stirred
     v = dot(src.rgb, vec3(.299, .587, .114)) * uDensity * 1.6 + (n - .5) * .15;
   } else {                      // page-wide cursor light: nothing but the light
@@ -681,7 +690,7 @@ void main(){
   if (uDot > .5 && uDot < 1.5) on *= step(length(l), .42);
   else if (uDot > 1.5) on *= step(min(length(l - vec2(0., .22)), length(l + vec2(0., .22))), .16);
 
-  gl_FragColor = vec4(uColor * on, on);
+  gl_FragColor = vec4(uColor * on, on) * uAlpha;  // premultiplied alpha
 }`;
 
   const shader = (() => {
@@ -727,7 +736,7 @@ void main(){
       for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
       const u = {};
-      for (const name of ["uSeed", "uRes", "uTime", "uMode", "uPixel", "uMatrix", "uDot", "uDensity", "uScale", "uContrast", "uReveal", "uRadius", "uMouse", "uColor", "uSrc"]) u[name] = gl.getUniformLocation(prog, name);
+      for (const name of ["uSeed", "uRes", "uTime", "uMode", "uPixel", "uMatrix", "uDot", "uDensity", "uScale", "uContrast", "uReveal", "uRadius", "uEdge", "uAlpha", "uMouse", "uColor", "uSrc"]) u[name] = gl.getUniformLocation(prog, name);
 
       if (!el) { // page-wide cursor light: fixed, viewport-sized
         canvas.classList.add("fx-cursor");
@@ -738,12 +747,15 @@ void main(){
         return;
       }
       const img = el.querySelector("img");
+      // Slots holding real media (a photo or a video) show it as-is, with only
+      // a faint dither band along the edges; the shader never replaces it.
+      const video = mode === "slot" && !el.classList.contains("mk") ? el.querySelector("video, img") : null;
       const restore = [];
       if (getComputedStyle(el).position === "static") { el.style.position = "relative"; restore.push(() => el.style.removeProperty("position")); }
-      if (img) { img.style.opacity = "0"; restore.push(() => img.style.removeProperty("opacity")); }
+      if (img && !video) { img.style.opacity = "0"; restore.push(() => img.style.removeProperty("opacity")); }
       el.prepend(canvas);
 
-      const s = { el, canvas, gl, u, tex, mode: mode === "slot" && img && !el.classList.contains("mk") ? 2 : mode === "mk" ? 0 : 1, img, seed: surfaces.length * 7.31, visible: false, reveal: 1, introStart: null, mouseK: 0, restore, w: 0, h: 0 };
+      const s = { el, canvas, gl, u, tex, mode: mode === "slot" && img && !video && !el.classList.contains("mk") ? 2 : mode === "mk" ? 0 : 1, img, video, seed: surfaces.length * 7.31, visible: false, reveal: 1, introStart: null, mouseK: 0, restore, w: 0, h: 0 };
       s.ro = new ResizeObserver(() => resize(s));
       s.ro.observe(el);
       s.io = new IntersectionObserver(([e]) => { s.visible = e.isIntersecting; if (s.visible) kick(); });
@@ -797,6 +809,7 @@ void main(){
       const d = dpr();
       const time = reduceMotion ? 0 : ((now - t0) / 1000) * c.flow;
       const color = hexRgb(c.color);
+      const edgeColor = hexRgb(c.edgeColor);
       const dotMode = { square: 0, round: 1, colon: 2 }[c.dot] ?? 0;
       let busy = false;
       let overBlock = false;
@@ -809,13 +822,15 @@ void main(){
         gl.uniform1f(u.uPixel, Math.max(1, c.pixel * d));
         gl.uniform1f(u.uMatrix, c.matrix);
         gl.uniform1f(u.uDot, dotMode);
-        gl.uniform1f(u.uDensity, s.mode === 0 ? c.density : c.slotDensity);
+        gl.uniform1f(u.uDensity, s.mode === 0 ? c.density : s.video ? c.edgeDensity : c.slotDensity);
         gl.uniform1f(u.uScale, c.scale);
         gl.uniform1f(u.uContrast, c.contrast);
         gl.uniform1f(u.uReveal, s.reveal);
         gl.uniform1f(u.uRadius, radius);
+        gl.uniform1f(u.uEdge, s.video ? c.edge * d : 0);
+        gl.uniform1f(u.uAlpha, s.video ? c.edgeOpacity : 1);
         gl.uniform3f(u.uMouse, mx, my, k);
-        gl.uniform3f(u.uColor, ...color);
+        gl.uniform3f(u.uColor, ...(s.video ? edgeColor : color));
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       };
       for (const s of surfaces) {
@@ -834,7 +849,7 @@ void main(){
         }
         s.mouseK += ((hover ? 1 : 0) - s.mouseK) * 0.12;
         if (hover) { s.mx = mx; s.my = my; }
-        draw(s, s.mx ?? 0.5, s.my ?? 0.5, s.mouseK * c.mouse, c.radius);
+        draw(s, s.mx ?? 0.5, s.my ?? 0.5, s.video ? 0 : s.mouseK * c.mouse, c.radius); // no cursor light on videos
         busy = true;
       }
       // Outside the blocks, a smaller light follows the cursor; it hands
@@ -862,6 +877,7 @@ void main(){
       const c = config.shader;
       if (!c.on) return;
       if (c.mk) document.querySelectorAll(".mk").forEach((el) => create(el, "mk"));
+      // Slots holding a video show it as-is: dithering a UI recording makes it unreadable.
       if (c.slots) document.querySelectorAll(".card-image, .about-picture, .cs-image").forEach((el) => create(el, "slot"));
       if (c.cursorEverywhere && finePointer.matches) create(null, "cursor");
       kick();
