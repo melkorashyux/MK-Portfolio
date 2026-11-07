@@ -62,9 +62,11 @@
 
   const bar = el("nav", "keys-bar");
   bar.setAttribute("aria-label", "Sections");
+  if (csHeadings.length) bar.classList.add("keys-bar--cs");
   const links = items.map((it) => {
     const a = el("a", null, `<span class="kb-n">${it.key}</span><span class="kb-l">${it.label}</span>`);
     a.href = it.href;
+    a.setAttribute("aria-label", it.label); // phones may show the number only
     bar.append(a);
     return a;
   });
