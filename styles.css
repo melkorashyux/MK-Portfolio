@@ -10,18 +10,29 @@
  * (main.js sets --rows on [data-snap] blocks whose height depends on text).
  */
 
+/* Geist Serif isn't on Google Fonts yet; self-hosted from the geist npm
+   package 1.9.2 (OFL, assets/fonts/LICENSE-Geist.txt). */
+@font-face {
+  font-family: "Geist Serif";
+  src: url("assets/fonts/GeistSerifVF.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
   --color-page: #121212;
   --color-cell-highlight: #1f1f1f;
-  --color-grid-line: #272727;
+  --color-grid-line: transparent; /* grid hidden; corner handles replace it (was #272727) */
   --color-white-pure: #ffffff;
   --color-accent-green: #09fd42;
   --color-text-muted: #b8b8b8;
   --color-text-label: #626161;
   --color-placeholder-number: #3c3c3c;
 
-  --font-display: "Geist", system-ui, sans-serif;
+  --font-display: var(--font-serif); /* was "Geist", system-ui, sans-serif */
   --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-serif: "Geist Serif", Georgia, serif;
+  --font-sans: "Geist", system-ui, sans-serif;
 
   color-scheme: dark;
 }
@@ -137,8 +148,8 @@ a { color: inherit; }
   display: flex;
   align-items: center;
   grid-row: 1;
-  font: 700 calc(148 * var(--px)) / var(--cell) var(--font-display);
-  letter-spacing: -0.04em;
+  font: 400 calc(148 * var(--px)) / var(--cell) var(--font-display);
+  letter-spacing: -0.02em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -217,8 +228,8 @@ a { color: inherit; }
   display: grid;
   grid-template-columns: subgrid;
   grid-template-rows: subgrid;
-  font: 700 calc(148 * var(--px)) / var(--cell) var(--font-display);
-  letter-spacing: -0.04em;
+  font: 400 calc(148 * var(--px)) / var(--cell) var(--font-serif); /* Geist Serif has one weight */
+  letter-spacing: -0.02em;
   text-transform: uppercase;
 }
 .hero-line {
@@ -393,9 +404,9 @@ a { color: inherit; }
   display: flex;
   align-items: center;
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 400;
   line-height: var(--cell);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   white-space: nowrap;
 }
 .cta-line--1 { grid-column: 2 / 10; grid-row: 1; font-size: calc(96 * var(--px)); }
@@ -459,12 +470,12 @@ a { color: inherit; }
   align-items: center;
   margin: 0;
   background: var(--color-cell-highlight);
-  font: 700 calc(124 * var(--px)) / var(--cell) var(--font-display);
-  letter-spacing: -0.04em;
+  font: 400 calc(124 * var(--px)) / var(--cell) var(--font-display);
+  letter-spacing: -0.02em;
   text-transform: uppercase;
   white-space: nowrap;
 }
-.cs-heading--sm { font-size: calc(116 * var(--px)); }
+.cs-heading--sm { font-size: calc(112 * var(--px)); } /* was 116 with Geist Bold */
 
 .cs-cell {
   display: flex;
@@ -690,4 +701,17 @@ a { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
+}
+
+/* ---------- Corner handles (handles.js) ----------
+   The grid lines are hidden (--color-grid-line: transparent). In their place,
+   every block gets a small hollow square on each corner, like a Figma
+   selection; clickable blocks' handles turn green on hover. */
+.gap::before { background: transparent; }
+.corner-marks {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
 }

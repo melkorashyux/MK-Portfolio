@@ -1,0 +1,181 @@
+/* Scroll navigation: pinned MK logo + docked key bar + jump line
+   (keys-nav.js).
+
+   Everything here is fixed to the viewport, so it lives outside .page (whose
+   containment would trap position: fixed). keys-nav.js sets --nav-cell (one
+   grid cell in px) and --nav-side (the empty margin beside the 12 columns)
+   on <html>. */
+
+:root {
+  --nav-cell: 120px;
+  --nav-side: 0px;
+  --nav-px: calc(var(--nav-cell) / 120);
+  --nav-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --bar-h: calc(36 * var(--nav-px));
+}
+
+/* ---------- Pinned MK logo ---------- */
+
+.pin-logo {
+  position: fixed;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  color: var(--color-white-pure);
+  background: var(--color-page);
+}
+.pin-logo svg { width: calc(52 * var(--nav-px)); height: auto; }
+.pin-logo:is(:hover, :focus-visible) { color: var(--color-accent-green); }
+html.has-pin-logo .hero-logo { visibility: hidden; }
+/* Phones: blocks span the full width, so a pinned logo would sit on top of
+   them. The logo just scrolls away with the page there. */
+@media (max-width: 899px) {
+  .pin-logo { display: none; }
+  html.has-pin-logo .hero-logo { visibility: visible; }
+}
+
+/* its own 4 corner handles, green on hover like the other clickables */
+.pin-handle {
+  --size: calc(9.5 * var(--nav-px)); /* 8 + the SVG stroke, to match handles.js */
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  margin: calc(-0.5 * var(--size));
+  border: max(1px, calc(1.5 * var(--nav-px))) solid #4a4a4a;
+  background: var(--color-page);
+  pointer-events: none;
+}
+.pin-handle:nth-of-type(1) { top: 0; left: 0; }
+.pin-handle:nth-of-type(2) { top: 0; left: 100%; }
+.pin-handle:nth-of-type(3) { top: 100%; left: 0; }
+.pin-handle:nth-of-type(4) { top: 100%; left: 100%; }
+.pin-logo:is(:hover, :focus-visible) .pin-handle { border-color: var(--color-accent-green); }
+
+/* other blocks' handles passing the pinned logo, redrawn whole above it
+   (handles.js) */
+.corner-marks-over {
+  position: fixed;
+  inset: 0;
+  z-index: 31;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---------- Key bar ---------- */
+
+.keys-bar {
+  position: fixed;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  height: var(--bar-h);
+  padding-inline: var(--nav-side);
+  background: var(--color-page);
+  font: 500 calc(14 * var(--nav-px)) / 1 var(--font-mono);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(100%);
+  transition: opacity 0.3s ease, transform 0.4s var(--nav-ease);
+}
+html.nav-docked .keys-bar { opacity: 1; pointer-events: auto; transform: none; }
+.keys-bar a { flex: 1; display: flex; align-items: stretch; margin-right: 2px; color: inherit; text-decoration: none; }
+.keys-bar .kb-n {
+  display: flex;
+  align-items: center;
+  padding-inline: calc(8 * var(--nav-px));
+  color: var(--color-white-pure);
+  font-weight: 700;
+}
+.keys-bar .kb-l {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-inline: calc(10 * var(--nav-px));
+  background: var(--color-cell-highlight);
+  color: var(--color-text-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.keys-bar a:hover .kb-l { color: var(--color-white-pure); }
+.keys-bar a:focus-visible { outline: 2px solid var(--color-accent-green); outline-offset: -2px; }
+.keys-bar a[aria-current="true"] .kb-l { background: var(--color-accent-green); color: var(--color-page); font-weight: 700; }
+
+/* Phones: numbers only for the case-study keys would be cryptic, so the bar
+   scrolls sideways instead of squeezing the labels */
+@media (max-width: 899px) {
+  :root { --bar-h: 44px; }
+  .keys-bar { font-size: 13px; overflow-x: auto; scrollbar-width: none; }
+  .keys-bar a { flex: 0 0 auto; }
+  .keys-bar .kb-n { padding-inline: 8px; }
+  .keys-bar .kb-l { padding-inline: 10px; }
+}
+
+/* ---------- Jump line ---------- */
+
+.jump {
+  position: fixed;
+  z-index: 40;
+  left: var(--nav-side);
+  right: var(--nav-side);
+  bottom: 0;
+  background: var(--color-page);
+  box-shadow: 0 -1px #2a2a2a;
+  font: 500 calc(14 * var(--nav-px)) / 1 var(--font-mono);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(100%);
+  transition: opacity 0.3s ease, transform 0.4s var(--nav-ease);
+}
+.jump.open { opacity: 1; pointer-events: auto; transform: none; }
+.jump-list { margin: 0; padding: calc(6 * var(--nav-px)) 0; list-style: none; }
+.jump-list li {
+  display: flex;
+  gap: 3ch;
+  padding: calc(8 * var(--nav-px)) calc(16 * var(--nav-px));
+  color: var(--color-white-pure);
+  cursor: pointer;
+}
+.jump-list li.sel { background: var(--color-cell-highlight); box-shadow: inset 3px 0 var(--color-accent-green); }
+.jump-desc { color: var(--color-text-label); }
+.jump-list .jump-none { color: #ff6b6b; cursor: default; }
+.jump-line {
+  display: flex;
+  align-items: center;
+  height: var(--bar-h);
+  padding-inline: calc(16 * var(--nav-px));
+  background: var(--color-cell-highlight);
+}
+.jump-colon { color: var(--color-accent-green); font-weight: 700; margin-right: 0.5ch; }
+.jump-input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--color-white-pure);
+  font: inherit;
+  font-size: max(16px, 1em); /* no zoom-on-focus on iOS */
+  caret-color: var(--color-accent-green);
+}
+.jump-toast {
+  position: fixed;
+  z-index: 41;
+  left: 50%;
+  bottom: calc(2 * var(--bar-h));
+  padding: calc(10 * var(--nav-px)) calc(16 * var(--nav-px));
+  background: var(--color-accent-green);
+  color: var(--color-page);
+  font: 700 calc(14 * var(--nav-px)) / 1 var(--font-mono);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 10px);
+  transition: opacity 0.3s ease, transform 0.4s var(--nav-ease);
+}
+.jump-toast.show { opacity: 1; transform: translateX(-50%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .keys-bar, .jump, .jump-toast { transition: none !important; }
+}
