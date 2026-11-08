@@ -1203,7 +1203,7 @@ Source: two Figma PDF exports (**Visual Brain**, 1440 × 10441, and **Website Bu
 4. **Headings are typed in sentence case and shown in capitals** ("Visual brain", "The problem", "structure", "3000px → 440px"): the Figma text case is set to Upper (or CSS `text-transform: uppercase`). This also answers the open "typed or transformed?" question for the main-page headings, which are very likely the same.
 5. **Text sits in `#1F1F1F` cells, inset 16px left and right, vertically centered in its row**, except where stated (meta group, special-section text: top-aligned with 16px). Centering was checked on about 12 text blocks to within 1px.
 6. **Labels and titles in the cells are typed in sentence case too** ("Role & Company", "Local first", "Export for Claude") and shown in capitals.
-7. **Hand-sized cells.** Some cells are one cell wider than the rule gives ("SEO settings" title, the "TBD" stat). Treat the cell counts below as the design, not as a computed value.
+7. **Hand-sized cells.** Some cells are one cell wider than the rule gives ("SEO settings" title, the "85+" stat). Treat the cell counts below as the design, not as a computed value.
 
 ### Page row map (Visual Brain; Website Builder differences in the next table)
 
@@ -1267,7 +1267,7 @@ R87          empty last row; page height 10441 = 1 + 87 × 120 ✓
 | Approach statement | 1 line | 3 lines |
 | Structure items | Capture, Folders, **AI analysis (full width)**, Browsing, Export for Claude | Basic information, Website setup, **Adding content (full width)**, Color customization, SEO settings |
 | Special section | R60 (9 cells), text box R62–65, image R67–72 (720 tall) | R60 (10 cells, **116px** type so it fits), text R62 (9 cells, 1 row), image R64–70 (**840 tall**) |
-| Outcome | stat "OPEN SOURCE" (2 lines), description cols 7–11 | stat "TBD" (1 line), description cols 6–10 |
+| Outcome | stat "OPEN SOURCE" (2 lines), description cols 7–11 | stat "85+" (1 line), description cols 6–10 |
 | Next project | R81–82, link 10 cells | R77–78, link 9 cells (text ends X1112) |
 | Footer | R84–86 | R80–82, then 1 empty row |
 
@@ -1299,7 +1299,7 @@ Text styles are **confirmed from Figma** (Visual Brain, one layer of each kind).
 | Structure item title ("Capture") | 136, 3405 · 183 × 31 | Medium 500 24, -2%, uppercase | `#B8B8B8` |
 | Structure item text | 136, 3506 · 564 fixed × 69 (3 lines) | Regular 18, -2% (Mono Text) | `#B8B8B8` |
 | Special section text | 136, 7337 · 928 fixed × 416 (16px inset; 960 − 32 = 928 ✓; top-aligned) | Medium 500 20, -2%; the three sub-heads ("Resized once, cached" …) are **Bold 700 20, -2%** | text `#B8B8B8`, sub-heads `#FFFFFF` |
-| Outcome stat ("OPEN SOURCE", "TBD") | 136, 9135 · 420 × 222 (2 lines, 111 apart) | Light 300 120 / 111 / -2%, uppercase | `#B8B8B8` |
+| Outcome stat ("OPEN SOURCE", "85+") | 136, 9135 · 420 × 222 (2 lines, 111 apart) | Light 300 120 / 111 / -2%, uppercase | `#B8B8B8` |
 | Outcome description | 736, 9278 · 560 fixed × 46 (R78, centered; Website Builder X616) | Regular 18, -2% (Mono Text) | `#B8B8B8` |
 | "NEXT PROJECT" label | 136, 9649 · 126 × 23 (`12 × 10.44 = 125` ✓) | Regular 18, -2%, uppercase (Mono Text) | `#B8B8B8` |
 | Next-project link | 136, 9725 · 1200 fixed × 111 | Light 300 120 / 111 / **-3%**, uppercase; ends with the character "↗" | `#FFFFFF` |
@@ -1323,7 +1323,7 @@ Both case studies fill the same fields:
 | Approach | 1 statement + 3 pillars (label + 3-line text) | 1 paragraph + 3 pillars |
 | Structure | 5 items, each a title, a text and an image | 5 items |
 | Special section | "3000px → 440px": 2 paragraphs + 3 bold sub-heads | "3 layouts × 3 styles": 1 paragraph |
-| Outcome | stat "OPEN SOURCE", text "Free for any designer to use, or to take apart." and the placeholder "[Link to the repo]" | stat "TBD" (placeholder), text "centers and daycares now run their own website, built by owners with no technical background." |
+| Outcome | stat "OPEN SOURCE", text "Free for any designer to use, or to take apart." and the placeholder "[Link to the repo]" | stat "85+", text "centers and daycares now run their own website, built by owners with no technical background." |
 | Next project | WEBSITE BUILDER ↗ | VISUAL BRAIN ↗ |
 
 The full copy is in the two PDFs (and `case-studies/visual-brain.md`). The numbered images 1 to 7 map to the text in order: 1 hero, 2 to 6 the five structure items, 7 the special section.
