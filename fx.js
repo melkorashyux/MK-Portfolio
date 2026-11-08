@@ -81,12 +81,12 @@
     portrait: {
       on: true,
       effect: "dither", // dither | halftone | ascii | scan
-      lens: 0.24, // cursor lens radius (fraction of the photo's short side)
-      lensSoft: 0.5, // lens edge softness
-      intro: 1600, // ms for the effect to resolve in
+      lens: 0.61, // cursor lens radius (fraction of the photo's short side)
+      lensSoft: 0.2, // lens edge softness
+      intro: 0, // ms for the effect to resolve in
       effects: {
-        dither: { cell: 3, matrix: 8, brightness: 0, contrast: 1.15, key: 0, invert: false, ink: "#09fd42", bg: "#121212", cursor: "reveal" },
-        halftone: { cell: 8, angle: 45, dotScale: 1, brightness: 0, contrast: 1.2, key: 0, invert: false, ink: "#ffffff", bg: "#121212", tint: 0, bulge: 0.8, cursor: "magnify" },
+        dither: { cell: 4, matrix: 8, brightness: 0, contrast: 1.15, key: 0, invert: false, ink: "#09fd42", bg: "#121212", cursor: "reveal" },
+        halftone: { cell: 3, angle: 45, dotScale: 1, brightness: 0, contrast: 1.2, key: 0, invert: false, ink: "#ffffff", bg: "#121212", tint: 0, bulge: 0.8, cursor: "magnify" },
         ascii: { cell: 9, ramp: "standard", brightness: 0, contrast: 1.25, key: 0.8, invert: true, ink: "#09fd42", bg: "#121212", tint: 0, cursor: "scramble" },
         scan: { cell: 4, split: 3, scanlines: 0.35, beam: 0.15, tint: 0.6, ink: "#09fd42", contrast: 1.1, cursor: "resolve" },
       },
