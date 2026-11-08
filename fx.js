@@ -19,7 +19,7 @@
    browser's localStorage, and "Copy" puts the JSON on the clipboard to paste
    over DEFAULTS. */
 (() => {
-  const SHOW_CONTROLS = false;
+  const SHOW_CONTROLS = new URLSearchParams(location.search).has("fx"); // add ?fx to the URL for the panel
   const STORE_KEY = "fx-config";
   const root = document.documentElement;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -75,6 +75,21 @@
       cursorRadius: 10, // CSS px
       cursorLight: 0.3,
       cursorLayer: "above", // behind: lights the empty grid only | above: over everything (screen blend)
+    },
+    // About photo: its own WebGL layer that redraws the portrait as an effect.
+    // The cursor works as a lens over it; the effect resolves in on reveal.
+    portrait: {
+      on: true,
+      effect: "dither", // dither | halftone | ascii | scan
+      lens: 0.24, // cursor lens radius (fraction of the photo's short side)
+      lensSoft: 0.5, // lens edge softness
+      intro: 1600, // ms for the effect to resolve in
+      effects: {
+        dither: { cell: 3, matrix: 8, brightness: 0, contrast: 1.15, key: 0, invert: false, ink: "#09fd42", bg: "#121212", cursor: "reveal" },
+        halftone: { cell: 8, angle: 45, dotScale: 1, brightness: 0, contrast: 1.2, key: 0, invert: false, ink: "#ffffff", bg: "#121212", tint: 0, bulge: 0.8, cursor: "magnify" },
+        ascii: { cell: 9, ramp: "standard", brightness: 0, contrast: 1.25, key: 0.8, invert: true, ink: "#09fd42", bg: "#121212", tint: 0, cursor: "scramble" },
+        scan: { cell: 4, split: 3, scanlines: 0.35, beam: 0.15, tint: 0.6, ink: "#09fd42", contrast: 1.1, cursor: "resolve" },
+      },
     },
   };
 
@@ -151,6 +166,68 @@
     { key: "cursorLight", label: "Outside light", type: "range", min: 0, max: 2, step: 0.05, unit: "" },
     { key: "cursorLayer", label: "Outside layer", type: "select", options: ["behind", "above"] },
   ];
+
+  const PORTRAIT_META = {
+    dither: { n: 1, name: "Dither", desc: "1-bit ordered dither in the accent green. The cursor lens reveals the real photo through a dithered edge." },
+    halftone: { n: 2, name: "Halftone", desc: "A rotated print dot screen, dot size from brightness. The cursor magnifies the dots like a loupe." },
+    ascii: { n: 3, name: "ASCII", desc: "The photo as monospace characters. Glyphs decode in on reveal; the cursor scrambles them." },
+    scan: { n: 4, name: "Scan", desc: "Pixelated CRT readout: RGB split, scanlines, a slow beam. The cursor resolves it to the sharp photo." },
+  };
+  const PORTRAIT_COMMON = [
+    { key: "on", label: "Enabled", type: "toggle" },
+    { key: "lens", label: "Lens radius", type: "range", min: 0.05, max: 0.8, step: 0.01, unit: "" },
+    { key: "lensSoft", label: "Lens softness", type: "range", min: 0, max: 1, step: 0.05, unit: "" },
+    { key: "intro", label: "Resolve-in", type: "range", min: 0, max: 5000, step: 50, unit: "ms" },
+  ];
+  const tone = [
+    { key: "brightness", label: "Brightness", type: "range", min: -0.5, max: 0.5, step: 0.01, unit: "" },
+    { key: "contrast", label: "Contrast", type: "range", min: 0.3, max: 3, step: 0.05, unit: "" },
+    { key: "key", label: "Key backdrop", type: "range", min: 0, max: 1, step: 0.01, unit: "" }, // 0 = off
+    { key: "invert", label: "Invert", type: "toggle" },
+  ];
+  const ASCII_RAMPS = {
+    standard: " .:-=+*#%@",
+    dense: " .'`^\",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$",
+    blocks: " ░▒▓█",
+    dots: " ·:•●",
+    binary: " 01",
+  };
+  const PORTRAIT_SCHEMA = {
+    dither: [
+      { key: "cell", label: "Pixel size", type: "range", min: 1, max: 16, step: 1, unit: "px" },
+      { key: "matrix", label: "Bayer matrix", type: "select", options: [2, 4, 8] },
+      ...tone,
+      { key: "ink", label: "Ink", type: "color" },
+      { key: "bg", label: "Background", type: "color" },
+      { key: "cursor", label: "Cursor", type: "select", options: ["reveal", "invert", "none"] }],
+    halftone: [
+      { key: "cell", label: "Dot spacing", type: "range", min: 3, max: 40, step: 1, unit: "px" },
+      { key: "angle", label: "Screen angle", type: "range", min: 0, max: 90, step: 1, unit: "°" },
+      { key: "dotScale", label: "Dot scale", type: "range", min: 0.3, max: 2, step: 0.05, unit: "" },
+      ...tone,
+      { key: "ink", label: "Ink", type: "color" },
+      { key: "bg", label: "Background", type: "color" },
+      { key: "tint", label: "Photo tint", type: "range", min: 0, max: 1, step: 0.05, unit: "" },
+      { key: "bulge", label: "Magnify", type: "range", min: 0, max: 3, step: 0.05, unit: "" },
+      { key: "cursor", label: "Cursor", type: "select", options: ["magnify", "reveal", "none"] }],
+    ascii: [
+      { key: "cell", label: "Char size", type: "range", min: 4, max: 32, step: 1, unit: "px" },
+      { key: "ramp", label: "Characters", type: "select", options: Object.keys(ASCII_RAMPS) },
+      ...tone,
+      { key: "ink", label: "Ink", type: "color" },
+      { key: "bg", label: "Background", type: "color" },
+      { key: "tint", label: "Photo tint", type: "range", min: 0, max: 1, step: 0.05, unit: "" },
+      { key: "cursor", label: "Cursor", type: "select", options: ["scramble", "reveal", "none"] }],
+    scan: [
+      { key: "cell", label: "Block size", type: "range", min: 1, max: 24, step: 1, unit: "px" },
+      { key: "split", label: "RGB split", type: "range", min: 0, max: 16, step: 0.5, unit: "px" },
+      { key: "scanlines", label: "Scanlines", type: "range", min: 0, max: 1, step: 0.05, unit: "" },
+      { key: "beam", label: "Beam speed", type: "range", min: 0, max: 0.5, step: 0.01, unit: "" },
+      { key: "contrast", label: "Contrast", type: "range", min: 0.3, max: 3, step: 0.05, unit: "" },
+      { key: "ink", label: "Tint color", type: "color" },
+      { key: "tint", label: "Tint", type: "range", min: 0, max: 1, step: 0.05, unit: "" },
+      { key: "cursor", label: "Cursor", type: "select", options: ["resolve", "glitch", "none"] }],
+  };
 
   /* ---------- Config ---------- */
 
@@ -583,6 +660,7 @@
       el.classList.remove("fx-wait");
       preset.reveal(el, ds[i], { ...o, duration: o.duration / sp });
       shader.intro(el, ds[i]);
+      portrait.intro(el, ds[i]);
     });
   }
 
@@ -616,6 +694,7 @@
     });
     PRESETS[config.version].enter?.(config.versions[config.version]);
     shader.resetIntro();
+    portrait.resetIntro();
   }
 
   /* ---------- Dither shader ---------- */
@@ -878,7 +957,8 @@ void main(){
       if (!c.on) return;
       if (c.mk) document.querySelectorAll(".mk").forEach((el) => create(el, "mk"));
       // Slots holding a video show it as-is: dithering a UI recording makes it unreadable.
-      if (c.slots) document.querySelectorAll(".card-image, .about-picture, .cs-image").forEach((el) => create(el, "slot"));
+      const slots = ".card-image, .cs-image" + (config.portrait.on ? "" : ", .about-picture"); // the portrait layer owns the About photo
+      if (c.slots) document.querySelectorAll(slots).forEach((el) => create(el, "slot"));
       if (c.cursorEverywhere && finePointer.matches) create(null, "cursor");
       kick();
     }
@@ -909,6 +989,302 @@ void main(){
     document.addEventListener("visibilitychange", kick);
     addEventListener("resize", () => { if (cursor) resize(cursor); });
     return { build, intro, resetIntro, refresh: () => surfaces.forEach(upload), kick };
+  })();
+
+  /* ---------- Portrait effects (About photo) ---------- */
+
+  const PFRAG = `
+precision highp float;
+uniform vec2 uRes;
+uniform vec3 uMouse, uInk, uBg;
+uniform float uEffect, uTime, uIntro, uLens, uLensSoft, uCell, uMatrix, uBright, uContrast, uAngle, uDotScale, uTint, uBulge, uCursor, uGlyphs, uInvert, uSplit, uScan, uBeam, uDpr, uKey;
+uniform sampler2D uSrc, uAtlas;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float bayer2(vec2 a){ a = floor(a); return fract(a.x * .5 + a.y * a.y * .75); }
+float bayer4(vec2 a){ return bayer2(.5 * a) * .25 + bayer2(a); }
+float bayer8(vec2 a){ return bayer4(.5 * a) * .25 + bayer2(a); }
+float bayer(vec2 c){ return uMatrix < 3. ? bayer2(c) : (uMatrix < 5. ? bayer4(c) : bayer8(c)); }
+vec3 photo(vec2 uv){ return texture2D(uSrc, vec2(clamp(uv.x, 0., 1.), 1. - clamp(uv.y, 0., 1.))).rgb; }
+float luma(vec3 c){ return dot(c, vec3(.299, .587, .114)); }
+float tone(float l){ return clamp((l - .5) * uContrast + .5 + uBright, 0., 1.); }
+// Key out the light studio backdrop: raw brightness above uKey drops to the background.
+float keep(vec3 c){ return uKey > 0. ? 1. - smoothstep(uKey - .05, uKey, luma(c)) : 1.; }
+mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+
+void main(){
+  vec2 fc = gl_FragCoord.xy;
+  vec2 uv = fc / uRes;
+  vec2 mp = uMouse.xy * uRes;
+  float r = uLens * min(uRes.x, uRes.y);
+  float L = uMouse.z * (1. - smoothstep(r * (1. - uLensSoft) - .5, r, length(fc - mp)));  // lens, 0..1
+  float t = uTime;
+  vec3 col;
+
+  if (uEffect < .5) {                     // ---- dither
+    vec2 cell = floor(fc / uCell);
+    vec2 cuv = (cell + .5) * uCell / uRes;
+    vec3 src = photo(cuv);
+    float l = tone(luma(src));
+    if (uInvert > .5) l = 1. - l;
+    l *= keep(src);
+    l *= clamp(uIntro * 1.5 - (1. - cuv.y) * .5, 0., 1.);  // builds in from the top
+    float th = bayer(cell);
+    float on = step(th + .001, l);
+    float lensOn = step(th + .001, L);
+    if (uCursor > .5 && uCursor < 1.5) on = mix(on, 1. - on, lensOn);
+    col = mix(uBg, uInk, on);
+    if (uCursor < .5) col = mix(col, photo(uv), lensOn);
+  } else if (uEffect < 1.5) {             // ---- halftone
+    float b = uCursor < .5 ? L * uBulge : 0.;
+    vec2 q = mp + (fc - mp) / (1. + b);   // loupe: pull content toward the cursor
+    mat2 R = rot(radians(uAngle));
+    vec2 p = R * q;
+    vec2 center = (floor(p / uCell) + .5) * uCell;
+    vec2 cuv = (center * R) / uRes;       // back to unrotated (R is orthonormal)
+    vec3 src = photo(cuv);
+    float l = tone(luma(src));
+    if (uInvert > .5) l = 1. - l;
+    l *= keep(src);
+    float rad = sqrt(l) * uCell * .5 * 1.414 * uDotScale * smoothstep(0., 1., uIntro * 1.4 - (1. - cuv.y) * .4);
+    float on = clamp(rad - length(p - center) + .5, 0., 1.);
+    vec3 ink = mix(uInk, src * 1.15, uTint);
+    col = mix(uBg, ink, on);
+    if (uCursor > .5 && uCursor < 1.5) col = mix(col, photo(uv), L);
+  } else if (uEffect < 2.5) {             // ---- ascii
+    vec2 cs = vec2(uCell, uCell * 1.6);
+    vec2 cell = floor(fc / cs);
+    vec2 cuv = (cell + .5) * cs / uRes;
+    vec3 src = photo(cuv);
+    float l = tone(luma(src));
+    if (uInvert > .5) l = 1. - l;
+    l *= keep(src);
+    float g = floor(l * (uGlyphs - .001));
+    float h = hash(cell);
+    float k = uIntro * 1.3 - h;                          // decode in, per character
+    if (k < 0.) g = 0.;
+    else if (k < .3) g = 1. + floor(hash(cell + floor(t * 14.)) * (uGlyphs - 1.));
+    if (uCursor < .5 && hash(cell * 1.7) < L * 1.4)       // scramble under the cursor
+      g = 1. + floor(hash(cell + floor(t * 10.) * 3.1) * (uGlyphs - 1.));
+    vec2 f = fract(fc / cs);
+    float a = texture2D(uAtlas, vec2((g + f.x) / uGlyphs, 1. - f.y)).a;
+    vec3 ink = mix(uInk, src * 1.3, uTint);
+    col = mix(uBg, ink, a);
+    if (uCursor > .5 && uCursor < 1.5) col = mix(col, photo(uv), L);
+  } else {                                // ---- scan
+    float intro = smoothstep(0., 1., uIntro);
+    float bs = mix(48. * uDpr, uCell, intro);            // big blocks resolve down
+    float sharp = uCursor < .5 ? step(bayer8(floor(fc / 2.)) + .001, L) : 0.;
+    bs = max(1., mix(bs, 1., sharp));
+    vec2 x = fc;
+    if (uCursor > .5 && uCursor < 1.5) {                 // glitch: row tears under the cursor
+      float row = floor(fc.y / (6. * uDpr));
+      x.x += (hash(vec2(row, floor(t * 6.))) - .5) * 40. * uDpr * L;
+    }
+    vec2 cuv = (floor(x / bs) + .5) * bs / uRes;
+    vec2 o = vec2(uSplit * (1. - sharp) / uRes.x, 0.);
+    vec3 c = vec3(photo(cuv + o).r, photo(cuv).g, photo(cuv - o).b);
+    c = clamp((c - .5) * uContrast + .5, 0., 1.);
+    c = mix(c, luma(c) * uInk * 1.4, uTint * (1. - sharp));
+    float line = step(.5, fract(fc.y / (3. * uDpr)));
+    c *= 1. - uScan * .6 * line * (1. - sharp);
+    float by = 1. - fract(t * uBeam);                    // beam sweeps top to bottom
+    float bd = (uv.y - by) * uRes.y / (24. * uDpr);
+    c += uInk * .22 * exp(-bd * bd) * step(.001, uBeam) * (1. - sharp);
+    c *= intro * .85 + .15;
+    col = c;
+  }
+  gl_FragColor = vec4(col, 1.);
+}`;
+
+  const portrait = (() => {
+    let s = null; // the one surface
+    let raf = 0;
+    let mouse = null;
+    const t0 = performance.now();
+    const EFFECTS = Object.keys(PORTRAIT_META);
+    const CURSORS = { dither: ["reveal", "invert", "none"], halftone: ["magnify", "reveal", "none"], ascii: ["scramble", "reveal", "none"], scan: ["resolve", "glitch", "none"] };
+
+    function compile(gl) {
+      const prog = gl.createProgram();
+      for (const [type, src] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, PFRAG]]) {
+        const sh = gl.createShader(type);
+        gl.shaderSource(sh, src);
+        gl.compileShader(sh);
+        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
+        gl.attachShader(prog, sh);
+      }
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+      return prog;
+    }
+    function texture(gl, unit) {
+      const tex = gl.createTexture();
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
+      return tex;
+    }
+
+    function build() {
+      destroy();
+      const el = document.querySelector(".about-picture");
+      const img = el?.querySelector("img");
+      if (!img || !config.portrait.on) return;
+      const canvas = document.createElement("canvas");
+      canvas.className = "fx-surface fx-portrait";
+      canvas.setAttribute("aria-hidden", "true");
+      const gl = canvas.getContext("webgl", { antialias: false });
+      if (!gl) return;
+      let prog;
+      try { prog = compile(gl); } catch (err) { console.warn("fx: portrait shader failed", err); return; }
+      gl.useProgram(prog);
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(prog, "p");
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      const u = {};
+      for (const n of PFRAG.match(/uniform [^;]+;/g).flatMap((l) => l.replace(/uniform \w+ /, "").replace(";", "").split(/,\s*/))) u[n] = gl.getUniformLocation(prog, n);
+      const src = texture(gl, 0), atlas = texture(gl, 1);
+      gl.uniform1i(u.uSrc, 0);
+      gl.uniform1i(u.uAtlas, 1);
+
+      const restore = [];
+      if (getComputedStyle(el).position === "static") { el.style.position = "relative"; restore.push(() => el.style.removeProperty("position")); }
+      el.prepend(canvas);
+      s = { el, img, canvas, gl, u, src, atlas, restore, w: 0, h: 0, intro: reduceMotion ? 1 : 0, introStart: null, mouseK: 0, ready: false, glyphs: 1 };
+      s.ro = new ResizeObserver(resize);
+      s.ro.observe(el);
+      s.io = new IntersectionObserver(([e]) => { s.visible = e.isIntersecting; if (s.visible) kick(); });
+      s.io.observe(el);
+      if (!img.complete) img.addEventListener("load", () => { upload(); kick(); }, { once: true });
+      atlasUpload();
+      resize();
+    }
+    function destroy() {
+      if (!s) return;
+      s.ro.disconnect(); s.io.disconnect();
+      s.gl.getExtension("WEBGL_lose_context")?.loseContext();
+      s.canvas.remove();
+      s.img.style.removeProperty("opacity");
+      s.restore.forEach((f) => f());
+      s = null;
+    }
+    function resize() {
+      if (!s) return;
+      const r = s.el.getBoundingClientRect();
+      const d = dpr();
+      const w = Math.max(1, Math.round(r.width * d)), h = Math.max(1, Math.round(r.height * d));
+      if (w === s.w && h === s.h) return;
+      s.w = s.canvas.width = w;
+      s.h = s.canvas.height = h;
+      s.gl.viewport(0, 0, w, h);
+      upload();
+      kick();
+    }
+    // The photo drawn the way the <img> shows it: object-fit cover at its object-position.
+    function upload() {
+      const im = s?.img;
+      if (!im?.naturalWidth) return;
+      const c = document.createElement("canvas");
+      c.width = s.w; c.height = s.h;
+      const k = Math.max(s.w / im.naturalWidth, s.h / im.naturalHeight);
+      const iw = im.naturalWidth * k, ih = im.naturalHeight * k;
+      const [px, py] = getComputedStyle(im).objectPosition.split(" ").map((v) => (v.endsWith("%") ? parseFloat(v) / 100 : 0.5));
+      c.getContext("2d").drawImage(im, (s.w - iw) * px, (s.h - ih) * py, iw, ih);
+      const gl = s.gl;
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, s.src);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+      s.ready = true;
+      s.img.style.opacity = "0"; // the canvas draws the photo from here on
+    }
+    // ASCII glyphs side by side in one strip, white on transparent.
+    function atlasUpload() {
+      if (!s) return;
+      const chars = [...(ASCII_RAMPS[config.portrait.effects.ascii.ramp] || ASCII_RAMPS.standard)];
+      const W = 40, H = 64;
+      const c = document.createElement("canvas");
+      c.width = W * chars.length; c.height = H;
+      const ctx = c.getContext("2d");
+      const font = getComputedStyle(root).getPropertyValue("--font-mono").trim() || "monospace";
+      ctx.font = `500 ${H * 0.62}px ${font}`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#fff";
+      chars.forEach((ch, i) => ctx.fillText(ch, W * i + W / 2, H / 2));
+      const gl = s.gl;
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, s.atlas);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+      s.glyphs = chars.length;
+      kick();
+    }
+
+    function render(now) {
+      raf = 0;
+      if (!s || !s.visible || !s.ready) return;
+      const p = config.portrait;
+      const e = p.effects[p.effect] || p.effects.dither;
+      const d = dpr();
+      if (s.introStart != null) {
+        s.intro = p.intro && !reduceMotion ? clamp01((now - s.introStart) / (p.intro / config.speed)) : now >= s.introStart ? 1 : 0;
+        if (s.intro >= 1) s.introStart = null;
+      }
+      const r = s.el.getBoundingClientRect();
+      let hover = false, mx = s.mx ?? 0.5, my = s.my ?? 0.5;
+      if (mouse) {
+        const x = (mouse.x - r.left) / r.width, y = 1 - (mouse.y - r.top) / r.height;
+        hover = x > -0.15 && x < 1.15 && y > -0.15 && y < 1.15;
+        if (hover) { s.mx = mx = x; s.my = my = y; }
+      }
+      s.mouseK += ((hover ? 1 : 0) - s.mouseK) * 0.14;
+      const { gl, u } = s;
+      const f = (n, v) => gl.uniform1f(u[n], v);
+      gl.uniform2f(u.uRes, s.w, s.h);
+      gl.uniform3f(u.uMouse, mx, my, s.mouseK);
+      gl.uniform3f(u.uInk, ...hexRgb(e.ink || "#09fd42"));
+      gl.uniform3f(u.uBg, ...hexRgb(e.bg || "#121212"));
+      f("uEffect", Math.max(0, EFFECTS.indexOf(p.effect)));
+      f("uTime", reduceMotion ? 0 : (now - t0) / 1000);
+      f("uIntro", s.intro);
+      f("uLens", p.lens);
+      f("uLensSoft", p.lensSoft);
+      f("uCell", Math.max(1, e.cell * d));
+      f("uMatrix", e.matrix ?? 8);
+      f("uBright", e.brightness ?? 0);
+      f("uContrast", e.contrast ?? 1);
+      f("uAngle", e.angle ?? 0);
+      f("uDotScale", e.dotScale ?? 1);
+      f("uTint", e.tint ?? 0);
+      f("uBulge", e.bulge ?? 0);
+      f("uCursor", Math.max(0, CURSORS[p.effect].indexOf(e.cursor)));
+      f("uGlyphs", s.glyphs);
+      f("uInvert", e.invert ? 1 : 0);
+      f("uSplit", (e.split ?? 0) * d);
+      f("uScan", e.scanlines ?? 0);
+      f("uBeam", reduceMotion ? 0 : e.beam ?? 0);
+      f("uDpr", d);
+      f("uKey", e.key ?? 0);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      // Keep drawing while something moves: the intro, the lens, or the scan beam.
+      const moving = s.introStart != null || s.mouseK > 0.005 || hover || (p.effect === "scan" && e.beam > 0 && !reduceMotion);
+      if (moving) raf = requestAnimationFrame(render);
+    }
+    function kick() { if (!raf && !document.hidden) raf = requestAnimationFrame(render); }
+
+    function intro(el, delay) {
+      if (s && s.el === el) { s.introStart = performance.now() + delay; s.intro = 0; kick(); }
+    }
+    function resetIntro() { if (s) { s.intro = reduceMotion ? 1 : 0; s.introStart = null; kick(); } }
+
+    addEventListener("pointermove", (e) => { if (e.pointerType === "touch") return; mouse = { x: e.clientX, y: e.clientY }; kick(); }, { passive: true });
+    document.addEventListener("pointerleave", () => { mouse = null; kick(); });
+    document.addEventListener("visibilitychange", kick);
+    return { build, intro, resetIntro, kick, atlas: atlasUpload, refresh: () => { upload(); kick(); }, replayIntro: () => intro(s?.el, 0) };
   })();
 
   /* ---------- Buttons ---------- */
@@ -1134,6 +1510,51 @@ void main(){
         }));
       }
 
+      h("Portrait effect");
+      const pc = config.portrait;
+      const ps = document.createElement("div");
+      ps.className = "fx-versions fx-versions--4";
+      for (const [key, meta] of Object.entries(PORTRAIT_META)) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("aria-pressed", String(pc.effect === key));
+        b.innerHTML = `<b>${meta.n}</b>${meta.name}`;
+        b.addEventListener("click", () => {
+          pc.effect = key;
+          save();
+          render();
+          portrait.replayIntro();
+        });
+        ps.append(b);
+      }
+      panel.append(ps);
+      const pdesc = document.createElement("p");
+      pdesc.className = "fx-desc";
+      pdesc.textContent = PORTRAIT_META[pc.effect].desc;
+      panel.append(pdesc);
+      for (const def of PORTRAIT_COMMON) {
+        panel.append(control(def, pc, (key) => {
+          save();
+          if (key === "on") { shader.build(); portrait.build(); }
+          portrait.kick();
+        }));
+      }
+      for (const def of PORTRAIT_SCHEMA[pc.effect]) {
+        panel.append(control(def, pc.effects[pc.effect], (key) => {
+          save();
+          if (key === "ramp") portrait.atlas();
+          portrait.kick();
+        }));
+      }
+      const pa = document.createElement("div");
+      pa.className = "fx-actions";
+      const pb = document.createElement("button");
+      pb.type = "button";
+      pb.textContent = "Replay portrait";
+      pb.addEventListener("click", () => portrait.replayIntro());
+      pa.append(pb);
+      panel.append(pa);
+
       h("Buttons");
       for (const def of BUTTON_SCHEMA) {
         panel.append(control(def, config.buttons, (key) => {
@@ -1161,6 +1582,7 @@ void main(){
         config = clone(DEFAULTS);
         save();
         shader.build();
+        portrait.build();
         buttons.build();
         render();
         replay();
@@ -1177,6 +1599,7 @@ void main(){
   /* ---------- Start ---------- */
 
   shader.build();
+  portrait.build();
   buttons.build();
   replay();
   root.classList.remove("fx-pending");
