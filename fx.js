@@ -904,7 +904,7 @@ void main(){
       kick();
     }
 
-    addEventListener("pointermove", (e) => { mouse = { x: e.clientX, y: e.clientY }; kick(); }, { passive: true });
+    addEventListener("pointermove", (e) => { if (e.pointerType === "touch") return; mouse = { x: e.clientX, y: e.clientY }; kick(); }, { passive: true }); // no cursor light left behind by a finger
     document.addEventListener("pointerleave", () => { mouse = null; });
     document.addEventListener("visibilitychange", kick);
     addEventListener("resize", () => { if (cursor) resize(cursor); });
@@ -985,7 +985,11 @@ void main(){
           fill.classList.add("fx-press");
           if (!btn.__fxIn) { setFill(btn, 1); btn.__fxP = 1; }
         },
-        pointerup: (e) => { if (e.pointerType !== "mouse") setTimeout(() => leave(btn), 160); },
+        // Touch has no hover to end: clear the fill shortly after the tap (or
+        // when the touch turns into a scroll). pointerdown fills without
+        // marking __fxIn, so reset directly rather than via leave().
+        pointerup: (e) => { if (e.pointerType !== "mouse") setTimeout(() => { btn.__fxIn = false; fillTo(btn, 0); }, 160); },
+        pointercancel: () => { btn.__fxIn = false; fillTo(btn, 0); },
       };
       for (const [k, f] of Object.entries(on)) btn.addEventListener(k, f);
       btn.__fxOff = () => {

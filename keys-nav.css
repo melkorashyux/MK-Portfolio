@@ -25,7 +25,8 @@
   background: var(--color-page);
 }
 .pin-logo svg { width: calc(52 * var(--nav-px)); height: auto; }
-.pin-logo:is(:hover, :focus-visible) { color: var(--color-accent-green); }
+.pin-logo:focus-visible { color: var(--color-accent-green); }
+@media (hover: hover) { .pin-logo:hover { color: var(--color-accent-green); } }
 html.has-pin-logo .hero-logo { visibility: hidden; }
 /* Phones: blocks span the full width, so a pinned logo would sit on top of
    them. The logo just scrolls away with the page there. */
@@ -49,7 +50,8 @@ html.has-pin-logo .hero-logo { visibility: hidden; }
 .pin-handle:nth-of-type(2) { top: 0; left: 100%; }
 .pin-handle:nth-of-type(3) { top: 100%; left: 0; }
 .pin-handle:nth-of-type(4) { top: 100%; left: 100%; }
-.pin-logo:is(:hover, :focus-visible) .pin-handle { border-color: var(--color-accent-green); }
+.pin-logo:focus-visible .pin-handle { border-color: var(--color-accent-green); }
+@media (hover: hover) { .pin-logo:hover .pin-handle { border-color: var(--color-accent-green); } }
 
 /* other blocks' handles passing the pinned logo, redrawn whole above it
    (handles.js) */
@@ -100,7 +102,7 @@ html.nav-docked .keys-bar { opacity: 1; pointer-events: auto; transform: none; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.keys-bar a:hover .kb-l { color: var(--color-white-pure); }
+@media (hover: hover) { .keys-bar a:hover .kb-l { color: var(--color-white-pure); } }
 .keys-bar a:focus-visible { outline: 2px solid var(--color-accent-green); outline-offset: -2px; }
 .keys-bar a[aria-current="true"] .kb-l { background: var(--color-accent-green); color: var(--color-page); font-weight: 700; }
 
@@ -114,6 +116,13 @@ html.nav-docked .keys-bar { opacity: 1; pointer-events: auto; transform: none; }
   .keys-bar .kb-l { padding-inline: 10px; }
   .keys-bar .kb-jump { display: none; } /* no keyboard to type into it */
 
+  /* Home: the four keys are one grid cell wide each, with no gaps, so the bar
+     lines up with the blocks above it */
+  .keys-bar:not(.keys-bar--cs) { overflow-x: visible; font-size: min(13px, 3.3vw); } /* "Timeline" fits a 90px key */
+  .keys-bar:not(.keys-bar--cs) a { flex: 0 0 25%; min-width: 0; margin-right: 0; } /* phone cell = 1/4 of the width */
+  .keys-bar:not(.keys-bar--cs) .kb-n { padding-inline: 6px; }
+  .keys-bar:not(.keys-bar--cs) .kb-l { min-width: 0; padding-inline: 6px; }
+
   /* Case studies: numbers only; the current section's key also shows its
      name and takes the leftover width */
   .keys-bar--cs { overflow-x: visible; }
@@ -123,7 +132,7 @@ html.nav-docked .keys-bar { opacity: 1; pointer-events: auto; transform: none; }
     background: var(--color-cell-highlight);
     color: var(--color-text-label);
   }
-  .keys-bar--cs a:hover .kb-n { color: var(--color-white-pure); }
+  @media (hover: hover) { .keys-bar--cs a:hover .kb-n { color: var(--color-white-pure); } }
   .keys-bar--cs a .kb-l { display: none; }
   /* the green fills the whole key, not each span, so no seam shows between
      the number and the name */

@@ -72,9 +72,10 @@
             el.dataset.cornerHover = "1";
             const on = () => { active = el; showHot(); };
             const off = () => { if (active === el) { active = null; showHot(); } };
-            el.addEventListener("pointerenter", on);
+            // mouse hover and keyboard focus only: a tap would leave the corners green
+            el.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") on(); });
             el.addEventListener("pointerleave", off);
-            el.addEventListener("focusin", on);
+            el.addEventListener("focusin", (e) => { if (e.target.matches(":focus-visible")) on(); });
             el.addEventListener("focusout", off);
           }
         }
