@@ -408,6 +408,7 @@ a.hero-name { text-decoration: none; } /* case studies: the name links home */
   grid-row: 3 / span 4;
   background: var(--color-cell-highlight) center / cover no-repeat;
 }
+.about-picture img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* ---------- Contact CTA: rows 41–42 ---------- */
 

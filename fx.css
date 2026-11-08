@@ -118,6 +118,7 @@
   background: #272727;
   border: 1px solid #272727;
 }
+.fx-versions--4 { grid-template-columns: repeat(4, 1fr); }
 .fx-versions button {
   display: grid;
   gap: 2px;
