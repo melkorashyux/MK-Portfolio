@@ -6,6 +6,9 @@
   const STROKE = 1.5;     // design px
   const COLOR = "#4a4a4a";
   const page = document.querySelector(".page");
+  const phoneMQ = matchMedia("(max-width: 899px)");
+  // phones: a label/title merged into the block after it (see main.js)
+  const LEAD = ".cs-pillar-label, .cs-item-title, .cs-next > .cs-small, .cs-outcome > .cs-stat";
   const NS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(NS, "svg");
   svg.classList.add("corner-marks");
@@ -63,8 +66,23 @@
       for (const el of collect(section, [])) {
         if (!el.offsetWidth || !el.offsetHeight) continue;
         if (el.matches(".hero-logo") && document.querySelector(".pin-logo")?.offsetParent) continue; // the pinned copy draws its own
-        const [x, y] = offset(el);
-        const w = el.offsetWidth, h = el.offsetHeight;
+        // phones: a case-study label and its text read as one block
+        const merged = phoneMQ.matches && el.matches(LEAD);
+        if (merged) continue;
+        let [x, y] = offset(el);
+        let w = el.offsetWidth;
+        let h = el.offsetHeight;
+        // phones: grow the box over the label(s) merged into it (they may sit
+        // above it or beside it, as in the Outcome stat)
+        if (phoneMQ.matches) {
+          for (let lead = el.previousElementSibling; lead; lead = lead.previousElementSibling) {
+            if (!lead.getClientRects().length) continue; // hidden
+            if (!lead.matches(LEAD)) break;
+            const [lx, ly] = offset(lead);
+            const x2 = Math.max(x + w, lx + lead.offsetWidth), y2 = Math.max(y + h, ly + lead.offsetHeight);
+            x = Math.min(x, lx); y = Math.min(y, ly); w = x2 - x; h = y2 - y;
+          }
+        }
         if (isClickable(el)) {
           marks.set(el, [[x, y], [x + w, y], [x, y + h], [x + w, y + h]]
             .map(([cx, cy]) => sq(cx, cy)).join(""));

@@ -10,8 +10,9 @@
   const page = document.querySelector(".page");
   const section = document.querySelector(".page .section");
   const heroLogo = document.querySelector(".hero-logo");
-  const heroNav = document.querySelector(".hero-nav");
-  if (!page || !section || !heroNav) return;
+  const heroNav = document.querySelector(".hero-nav"); // home only
+  const navRow = heroNav || document.querySelector(".site-nav"); // case studies: logo + name row
+  if (!page || !section || !navRow) return;
 
   const el = (tag, cls, html) => {
     const n = document.createElement(tag);
@@ -42,7 +43,7 @@
   const items = csHeadings.length
     ? [{ href: "index.html", label: "Home", key: "0" }].concat(csHeadings.map((h, i) => {
         const sec = h.closest(".section");
-        const label = h.tagName === "H1" ? "Overview" : h.textContent.trim();
+        const label = h.dataset.keyLabel || (h.tagName === "H1" ? "Overview" : h.textContent.trim()); // data-key-label: a shorter key bar name
         if (!sec.id) sec.id = "cs-" + slugify(label);
         return { href: "#" + sec.id, label, key: String(i + 1) };
       }))
@@ -169,7 +170,7 @@
   /* ---- Dock once the top nav row has scrolled out of view ---- */
   new IntersectionObserver(([e]) => {
     root.classList.toggle("nav-docked", !e.isIntersecting && e.boundingClientRect.top < 0);
-  }).observe(heroNav.querySelector("a") || heroNav);
+  }).observe(heroNav?.querySelector("a") || navRow);
 
   /* ---- Current section ---- */
   const targets = items.map((it) => (it.href.startsWith("#") ? document.getElementById(it.href.slice(1)) : null));
