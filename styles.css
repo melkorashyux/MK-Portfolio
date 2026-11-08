@@ -738,19 +738,22 @@ a.hero-name { text-decoration: none; } /* case studies: the name links home */
     height: calc(var(--rows, 1) * var(--cell) - var(--lead, 0px)) !important;
   }
   .cs-pillar-label { box-shadow: inset 0 1px var(--color-grid-line); }
-  /* Outcome: the stat (OPEN SOURCE / TBD) and its text are one block */
+  /* Outcome: the stat (OPEN SOURCE / 85+) and its text are one block */
   .cs-outcome > .cs-stat {
     height: auto !important;
-    padding-top: 10px; padding-bottom: 0;
-    /* a subheader on phones, like CAPTURE */
-    font-size: 17px; font-weight: 700; line-height: 1.2; color: var(--color-white-pure);
+    padding-top: 24px; padding-bottom: 0; /* the block has room to spare, so breathe */
+    /* the result reads as a big number, same size and weight as the
+       "Next project" link (sized for 14 chars, e.g. "VISUAL BRAIN ↗") */
+    font-size: calc((100cqw - 2 * var(--inset)) / (14 * 0.585));
+    font-weight: 300; line-height: 1.1; color: var(--color-white-pure);
   }
   .cs-outcome > .cs-stat ~ .cs-small {
     justify-content: flex-start;
-    padding-top: 4px;
+    padding-top: 16px;
     padding-bottom: 8px;
     height: calc(var(--rows, 1) * var(--cell) - var(--lead, 0px)) !important;
   }
+  .cs-outcome > .cs-stat ~ .cs-small p + p { margin-top: 12px; } /* the repo link */
   /* "Next project" sits in the same block as the link, like CAPTURE */
   .cs-next > .cs-small { height: auto !important; padding-top: 10px; padding-bottom: 0; line-height: 1.2; }
   .cs-next > .cs-small + .cs-cell {
