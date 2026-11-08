@@ -84,6 +84,11 @@
       lens: 0.61, // cursor lens radius (fraction of the photo's short side)
       lensSoft: 0.2, // lens edge softness
       intro: 0, // ms for the effect to resolve in
+      // Touch screens have no hover, so the lens grows open from the face by itself:
+      // play = once the photo reaches mid-screen, over touchDuration | scroll = scrubbed by scroll position | off
+      touch: "play",
+      touchDuration: 1200, // ms, for "play"
+      touchDelay: 150, // ms after reaching mid-screen, for "play"
       effects: {
         dither: { cell: 4, matrix: 8, brightness: 0, contrast: 1.15, key: 0, invert: false, ink: "#09fd42", bg: "#121212", cursor: "reveal" },
         halftone: { cell: 3, angle: 45, dotScale: 1, brightness: 0, contrast: 1.2, key: 0, invert: false, ink: "#ffffff", bg: "#121212", tint: 0, bulge: 0.8, cursor: "magnify" },
@@ -178,6 +183,9 @@
     { key: "lens", label: "Lens radius", type: "range", min: 0.05, max: 0.8, step: 0.01, unit: "" },
     { key: "lensSoft", label: "Lens softness", type: "range", min: 0, max: 1, step: 0.05, unit: "" },
     { key: "intro", label: "Resolve-in", type: "range", min: 0, max: 5000, step: 50, unit: "ms" },
+    { key: "touch", label: "Touch lens", type: "select", options: ["play", "scroll", "off"] },
+    { key: "touchDuration", label: "Touch open", type: "range", min: 200, max: 4000, step: 50, unit: "ms" },
+    { key: "touchDelay", label: "Touch delay", type: "range", min: 0, max: 2000, step: 50, unit: "ms" },
   ];
   const tone = [
     { key: "brightness", label: "Brightness", type: "range", min: -0.5, max: 0.5, step: 0.01, unit: "" },
@@ -997,7 +1005,7 @@ void main(){
 precision highp float;
 uniform vec2 uRes;
 uniform vec3 uMouse, uInk, uBg;
-uniform float uEffect, uTime, uIntro, uLens, uLensSoft, uCell, uMatrix, uBright, uContrast, uAngle, uDotScale, uTint, uBulge, uCursor, uGlyphs, uInvert, uSplit, uScan, uBeam, uDpr, uKey;
+uniform float uEffect, uTime, uIntro, uLens, uLensSoft, uCell, uMatrix, uBright, uContrast, uAngle, uDotScale, uTint, uBulge, uCursor, uGlyphs, uInvert, uSplit, uScan, uBeam, uDpr, uKey, uGrow;
 uniform sampler2D uSrc, uAtlas;
 
 float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -1016,7 +1024,7 @@ void main(){
   vec2 fc = gl_FragCoord.xy;
   vec2 uv = fc / uRes;
   vec2 mp = uMouse.xy * uRes;
-  float r = uLens * min(uRes.x, uRes.y);
+  float r = uLens * min(uRes.x, uRes.y) * uGrow;  // uGrow < 1 while the touch lens opens
   float L = uMouse.z * (1. - smoothstep(r * (1. - uLensSoft) - .5, r, length(fc - mp)));  // lens, 0..1
   float t = uTime;
   vec3 col;
@@ -1102,6 +1110,8 @@ void main(){
     let raf = 0;
     let mouse = null;
     const t0 = performance.now();
+    const fine = matchMedia("(hover: hover) and (pointer: fine)");
+    const FACE = [0.5, 0.6]; // where the touch lens opens: roughly the face, in the slot (y up)
     const EFFECTS = Object.keys(PORTRAIT_META);
     const CURSORS = { dither: ["reveal", "invert", "none"], halftone: ["magnify", "reveal", "none"], ascii: ["scramble", "reveal", "none"], scan: ["resolve", "glitch", "none"] };
 
@@ -1158,15 +1168,29 @@ void main(){
       s = { el, img, canvas, gl, u, src, atlas, restore, w: 0, h: 0, intro: reduceMotion ? 1 : 0, introStart: null, mouseK: 0, ready: false, glyphs: 1 };
       s.ro = new ResizeObserver(resize);
       s.ro.observe(el);
-      s.io = new IntersectionObserver(([e]) => { s.visible = e.isIntersecting; if (s.visible) kick(); });
+      s.io = new IntersectionObserver(([e]) => {
+        s.visible = e.isIntersecting;
+        if (s.visible) kick();
+        else { s.playStart = null; s.mouseK = 0; } // off screen: the touch lens plays again next time
+      });
       s.io.observe(el);
       if (!img.complete) img.addEventListener("load", () => { upload(); kick(); }, { once: true });
+      // Touch: a tap moves the lens to that spot.
+      s.onTap = (e) => {
+        if (e.pointerType === "mouse") return;
+        const r = el.getBoundingClientRect();
+        s.mx = (e.clientX - r.left) / r.width;
+        s.my = 1 - (e.clientY - r.top) / r.height;
+        kick();
+      };
+      el.addEventListener("pointerdown", s.onTap);
       atlasUpload();
       resize();
     }
     function destroy() {
       if (!s) return;
       s.ro.disconnect(); s.io.disconnect();
+      s.el.removeEventListener("pointerdown", s.onTap);
       s.gl.getExtension("WEBGL_lose_context")?.loseContext();
       s.canvas.remove();
       s.img.style.removeProperty("opacity");
@@ -1236,16 +1260,36 @@ void main(){
       }
       const r = s.el.getBoundingClientRect();
       let hover = false, mx = s.mx ?? 0.5, my = s.my ?? 0.5;
-      if (mouse) {
+      let target = 0, grow = 1, touchMoving = false;
+      const touch = !fine.matches;
+      if (touch) {
+        // No hover on touch: the lens grows open from the face by itself.
+        if (s.mx == null) { s.mx = mx = FACE[0]; s.my = my = FACE[1]; }
+        const off = Math.abs(r.top + r.height / 2 - innerHeight / 2) / innerHeight; // 0 = photo centred on screen
+        if (p.touch === "scroll") {
+          target = clamp01((0.42 - off) / 0.3);
+        } else if (p.touch === "play") {
+          if (s.playStart == null && off < 0.3) s.playStart = now + p.touchDelay;
+          if (s.playStart != null) {
+            target = reduceMotion ? 1 : easeInOut(clamp01((now - s.playStart) / p.touchDuration));
+            touchMoving = target < 1;
+          }
+        }
+      } else if (mouse) {
         const x = (mouse.x - r.left) / r.width, y = 1 - (mouse.y - r.top) / r.height;
         hover = x > -0.15 && x < 1.15 && y > -0.15 && y < 1.15;
         if (hover) { s.mx = mx = x; s.my = my = y; }
       }
-      s.mouseK += ((hover ? 1 : 0) - s.mouseK) * 0.14;
+      if (hover) target = 1;
+      if (touch && p.touch === "play") s.mouseK = target; // already eased
+      else s.mouseK += (target - s.mouseK) * (touch ? 0.25 : 0.14);
+      if (touch && p.touch !== "off") { grow = s.mouseK; } // radius grows from the face
       const { gl, u } = s;
       const f = (n, v) => gl.uniform1f(u[n], v);
       gl.uniform2f(u.uRes, s.w, s.h);
-      gl.uniform3f(u.uMouse, mx, my, s.mouseK);
+      // Touch: a full-strength lens whose radius grows; mouse: the lens fades in place.
+      gl.uniform3f(u.uMouse, mx, my, touch ? (s.mouseK > 0.001 ? 1 : 0) : s.mouseK);
+      gl.uniform1f(u.uGrow, grow);
       gl.uniform3f(u.uInk, ...hexRgb(e.ink || "#09fd42"));
       gl.uniform3f(u.uBg, ...hexRgb(e.bg || "#121212"));
       f("uEffect", Math.max(0, EFFECTS.indexOf(p.effect)));
@@ -1271,7 +1315,7 @@ void main(){
       f("uKey", e.key ?? 0);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       // Keep drawing while something moves: the intro, the lens, or the scan beam.
-      const moving = s.introStart != null || s.mouseK > 0.005 || hover || (p.effect === "scan" && e.beam > 0 && !reduceMotion);
+      const moving = s.introStart != null || touchMoving || (touch && p.touch === "play" && s.playStart != null && now < s.playStart) || Math.abs(target - s.mouseK) > 0.003 || hover || (p.effect === "scan" && e.beam > 0 && !reduceMotion);
       if (moving) raf = requestAnimationFrame(render);
     }
     function kick() { if (!raf && !document.hidden) raf = requestAnimationFrame(render); }
@@ -1284,6 +1328,7 @@ void main(){
     addEventListener("pointermove", (e) => { if (e.pointerType === "touch") return; mouse = { x: e.clientX, y: e.clientY }; kick(); }, { passive: true });
     document.addEventListener("pointerleave", () => { mouse = null; kick(); });
     document.addEventListener("visibilitychange", kick);
+    addEventListener("scroll", () => { if (!fine.matches) kick(); }, { passive: true }); // touch lens follows scroll position
     return { build, intro, resetIntro, kick, atlas: atlasUpload, refresh: () => { upload(); kick(); }, replayIntro: () => intro(s?.el, 0) };
   })();
 
