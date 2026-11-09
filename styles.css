@@ -738,7 +738,7 @@ a.hero-name { text-decoration: none; } /* case studies: the name links home */
     height: calc(var(--rows, 1) * var(--cell) - var(--lead, 0px)) !important;
   }
   .cs-pillar-label { box-shadow: inset 0 1px var(--color-grid-line); }
-  /* Outcome: the stat (OPEN SOURCE / 85+) and its text are one block */
+  /* Outcome: the stat (OPEN SOURCE / 98+) and its text are one block */
   .cs-outcome > .cs-stat {
     height: auto !important;
     padding-top: 24px; padding-bottom: 0; /* the block has room to spare, so breathe */
