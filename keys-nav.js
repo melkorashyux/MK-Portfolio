@@ -83,7 +83,7 @@
   const pInput = palette.querySelector(".jump-input");
   const pList = palette.querySelector(".jump-list");
   const mail = document.querySelector('a[href^="mailto:"]');
-  const email = mail ? mail.getAttribute("href").replace("mailto:", "") : "m.elkorashy@gmail.com";
+  const email = mail ? mail.getAttribute("href").replace("mailto:", "") : "hi@mostafaelkorashy.com";
   const toast = el("div", "jump-toast");
   let toastT = 0;
   const flash = (msg) => {
