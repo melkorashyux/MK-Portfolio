@@ -489,7 +489,6 @@ a.hero-name { text-decoration: none; } /* case studies: the name links home */
   text-transform: uppercase;
   white-space: nowrap;
 }
-.unit { text-transform: none; } /* units stay lowercase in uppercase headings: 440px, not 440PX */
 .cs-heading--sm { font-size: calc(112 * var(--px)); } /* was 116 with Geist Bold */
 
 .cs-cell {
