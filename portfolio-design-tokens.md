@@ -89,7 +89,7 @@
 - Picture: the "Picture of me" placeholder stays (405 × 405 here). It was missing from the latest screenshots and is being added back.
 - Heights: content row 534/572 → 638, section 806/844 → 910. Position Y4214 → Y4079.
 - Copy: paragraphs 3 and 4 were reworded, and paragraph 4 now names the company: Reliant Technologies.
-- Added: the closing CTA "Ready for Designing? / m.elkorashy@gmail.com".
+- Added: the closing CTA "Ready for Designing? / hi@mostafaelkorashy.com".
 
 Extracted from the Figma "Text styles" panel for the **Portfolio** project.
 
@@ -1049,7 +1049,7 @@ Arithmetic checks, all consistent:
 | Element | Position (X, Y) | Size | Text style | Fill |
 |---|---|---|---|---|
 | Headline line 1 "Got a project in mind?" | 120, 4799 | 948 Hug × 121 | Geist Bold **96**, line height 121, -4%, left / top | `#FFFFFF` |
-| Headline line 2 "m.elkorashy@gmail.com" | 120, 4919 | 1126 Hug × 121 | Geist Bold **101**, line height 121, -4%, left / top | `#FFFFFF` |
+| Headline line 2 "hi@mostafaelkorashy.com" | 120, 4919 | 1126 Hug × 121 | Geist Bold **101**, line height 121, -4%, left / top | `#FFFFFF` |
 | Arrow | 1200, 4801 | 120 × 120 frame (rotated 180° in Figma; the exported SVG already has the rotation baked in), clip content | — (`assets/cta-arrow.svg`) | `#09FD42` at 20% |
 | Button "Back to top ↑" (text) | 172, 5206 | 136 Hug × 23 | Geist Mono **SemiBold 600** 18, Auto, -2% | `#09FD42` |
 | Button "Github" (frame) | 120, 5324 | 240 Fixed × 24 Hug, horizontal auto layout, gap 24, padding 0, centered | — | none |
@@ -1083,7 +1083,7 @@ Every green in the design is `#09FD42` (confirmed), including the hover fill. Th
 | Element | Text |
 |---|---|
 | Line 1 | Got a project in mind? |
-| Line 2 | m.elkorashy@gmail.com |
+| Line 2 | hi@mostafaelkorashy.com |
 | Buttons | Back to top ↑ · Github · X (Twitter) · LinkedIn |
 | Footer line 1 | Designed and built by Mostafa Elkorashy |
 | Footer line 2 | Open to freelance & full-time offers remotely |
