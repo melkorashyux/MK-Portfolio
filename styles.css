@@ -264,6 +264,7 @@ a.hero-name { text-decoration: none; } /* case studies: the name links home */
   padding-left: calc(34 * var(--px));
   font-size: calc(20 * var(--px));
   line-height: 1.2857;
+  color: var(--color-text-muted);
 }
 .hero-subtext p { width: calc(410 * var(--px)); }
 
@@ -381,7 +382,7 @@ a.hero-name { text-decoration: none; } /* case studies: the name links home */
   line-height: 1.2857;
   letter-spacing: -0.02em;
   color: var(--color-text-muted);
-  text-wrap: balance; /* even line lengths, no single word left on the last line */
+  text-wrap: pretty; /* fills lines normally, avoids a lone word on the last line */
 }
 
 /* ---------- About Me: rows 31–38 ---------- */

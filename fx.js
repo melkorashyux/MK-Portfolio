@@ -26,6 +26,10 @@
   // Photosensitivity limits for any blinking effect
   const MAX_FLASH_HZ = 3;
   const FLICKER_FLOOR = 0.6;
+  // Case studies are for reading: their reveals and shader motion run at
+  // CALM strength (0.4 = 60% less flicker, squash, outline, noise motion).
+  const CALM = document.body.classList.contains("cs-page") ? 0.4 : 1;
+  const calm = (v, rest = 1) => rest + (v - rest) * CALM; // pull v toward its resting value
 
   const DEFAULTS = {
     version: "boot",
@@ -480,14 +484,14 @@
             const seg = Math.floor((p / flick) * flickers * 2);
             op = seg % 2 ? FLICKER_FLOOR : easeOut(clamp01((p / flick) * flickers * 2));
           }
-          setStyle(el, "opacity", String(op));
+          setStyle(el, "opacity", String(p === 0 ? 0 : calm(op))); // still hidden before its turn
           if (o.powerOn) {
             const sy = p < 0.18 ? Math.max(0.02, easeOut(p / 0.18)) : 1;
-            setStyle(el, "transform", `scaleY(${sy})`);
+            setStyle(el, "transform", `scaleY(${calm(sy)})`);
           }
           if (o.outline) {
             const a = p < flick ? 1 : 1 - (p - flick) / (1 - flick);
-            setStyle(el, "outline", `1px solid rgb(9 253 66 / ${a})`);
+            setStyle(el, "outline", `1px solid rgb(9 253 66 / ${a * CALM})`);
             setStyle(el, "outline-offset", "-1px");
           }
         }, () => finish(el));
@@ -894,7 +898,7 @@ void main(){
       raf = 0;
       const c = config.shader;
       const d = dpr();
-      const time = reduceMotion ? 0 : ((now - t0) / 1000) * c.flow;
+      const time = reduceMotion ? 0 : ((now - t0) / 1000) * c.flow * CALM;
       const color = hexRgb(c.color);
       const edgeColor = hexRgb(c.edgeColor);
       const dotMode = { square: 0, round: 1, colon: 2 }[c.dot] ?? 0;
@@ -936,7 +940,7 @@ void main(){
         }
         s.mouseK += ((hover ? 1 : 0) - s.mouseK) * 0.12;
         if (hover) { s.mx = mx; s.my = my; }
-        draw(s, s.mx ?? 0.5, s.my ?? 0.5, s.video ? 0 : s.mouseK * c.mouse, c.radius); // no cursor light on videos
+        draw(s, s.mx ?? 0.5, s.my ?? 0.5, s.video ? 0 : s.mouseK * c.mouse * CALM, c.radius); // no cursor light on videos
         busy = true;
       }
       // Outside the blocks, a smaller light follows the cursor; it hands
