@@ -181,3 +181,8 @@ a.cover:hover img { transform: scale(1.02); }
   .c1 .cover, .c2 .cover { animation-delay: 630ms; }
   .c1 .card-meta, .c2 .card-meta { animation-delay: 720ms; }
 }
+
+/* ---------- scroll motion: the same baseline rise, once, as each block enters the screen ----------
+   Only active when the script below adds .reveal-on (so without JS or with reduced motion, everything just shows). */
+.reveal-on .rv { opacity: 0; translate: 0 8px; }
+.reveal-on .rv.in { animation: baseline-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
