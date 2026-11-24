@@ -191,7 +191,8 @@ a.cover:hover img { transform: scale(1.02); }
    Anchors sit on the section titles (the sections are display: contents on desktop, so they have no box to scroll to).
    Smooth scroll, and one row step of space above the title when it lands. */
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
-[id="work"], [id="about"], [id="contact"] { scroll-margin-top: calc(104 * var(--p, 1px)); }
+/* About links to the Experience title: same row on desktop, and Experience comes first on phones */
+[id="work"], [id="about"], [id="experience"], [id="contact"] { scroll-margin-top: calc(104 * var(--p, 1px)); }
 
 /* ---------- dark mode: warm charcoal ---------- */
 :root[data-theme="dark"] {
