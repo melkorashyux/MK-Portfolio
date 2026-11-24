@@ -52,6 +52,8 @@
   .cs-h1 { font-size: calc(120 * var(--p)); line-height: calc(72 * var(--p)); top: calc(-7 * var(--p)); text-align: center; white-space: nowrap; }
   .center { text-align: center; }
   .cs-stat { font-size: calc(200 * var(--p)); line-height: calc(176 * var(--p)); }
+  /* a word-sized stat: 120/72 on one module row, baseline on the module's bottom edge (like the page title) */
+  .cs-stat-word { font-size: calc(120 * var(--p)); line-height: calc(72 * var(--p)); top: calc(-7 * var(--p)); white-space: nowrap; }
   .cs-next { font-size: calc(88 * var(--p)); line-height: calc(72 * var(--p)); top: calc(5 * var(--p)); text-align: center; white-space: nowrap; }
 
   /* the shared footer from home.css, placed inside this page's last section */
@@ -80,6 +82,7 @@
   .center { text-align: center; }
   .cs-media { aspect-ratio: 16 / 10; }
   .cs-stat { font-size: 96px; line-height: 96px; }
+  .cs-stat-word { font-size: 56px; line-height: 64px; }
   .cs-next { font-size: 40px; line-height: 48px; text-align: center; }
   .cs-head { display: none; }
   .case .contact { padding-top: 56px; }
