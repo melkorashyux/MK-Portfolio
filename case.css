@@ -20,6 +20,7 @@
 .cs-stat { letter-spacing: -0.06em; }
 .cs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .cs-list b { font-weight: 600; }
+.cs-tight li { font-weight: 500; }
 .cs-next-label { font-weight: 500; color: var(--muted); }
 .cs-next { letter-spacing: -0.055em; }
 .cs-next a:hover { text-decoration: none; opacity: 0.7; }
@@ -43,6 +44,8 @@
   .cs-tldr { font-size: calc(24 * var(--p)); line-height: calc(32 * var(--p)); }
   .cs-goal, .cs-dt { font-size: calc(32 * var(--p)); line-height: calc(40 * var(--p)); }
   .cs-list { gap: calc(24 * var(--p)); }
+  .cs-list.cs-tight { gap: 0; }
+  .cs-tight li { line-height: calc(40 * var(--p)); }
   .cs-why { margin-top: calc(24 * var(--p)); }
 
   /* hero title: 120/72, Geist baseline 79px into the line, shift -7 onto the module's bottom edge */
@@ -71,6 +74,7 @@
   .cs-tldr { font-size: 18px; line-height: 28px; }
   .cs-goal, .cs-dt { font-size: 24px; line-height: 32px; }
   .cs-list { gap: 16px; }
+  .cs-list.cs-tight { gap: 4px; }
   .cs-why { margin-top: 12px; }
   .cs-h1 { font-size: 48px; line-height: 56px; text-align: center; margin-top: 48px; }
   .center { text-align: center; }
