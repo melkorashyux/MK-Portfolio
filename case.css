@@ -13,7 +13,7 @@
 .cs-row-t, .cs-dt, .cs-stat, .cs-next { font-weight: 600; }
 .cs-row-t { letter-spacing: -0.01em; }
 .cs-dt { letter-spacing: -0.04em; }
-.cs-why b { font-weight: 600; }
+.cs-why b { font-weight: 800; }
 .cs-media { background: var(--cover); overflow: hidden; }
 .cs-media img, .cs-media video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 0% 0%; }
 .cs-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; background: var(--cover); }
@@ -91,5 +91,7 @@
   .case .contact { padding-top: 56px; }
 }
 
-/* one baseline (8px) between a decision or feature title and its description */
-.cs-dt + .cs-p { margin-top: calc(8 * var(--p, 1px)); }
+/* decision / feature title owns one module row: label (16) + title (40) = 56px, so the description
+   starts 48px lower, exactly on the next module row (104px). Phones keep a single baseline (8px). */
+.cs-dt + .cs-p { margin-top: 8px; }
+@media (min-width: 900px) { .cs-dt + .cs-p { margin-top: calc(48 * var(--p)); } }
