@@ -53,7 +53,8 @@ a.cover:hover img { transform: scale(1.02); }
 .card-title { font-weight: 700; letter-spacing: -0.04em; }
 .card-desc { font-weight: 300; color: var(--soft); }
 .section-title { font-weight: 500; letter-spacing: -0.045em; }
-.about-text { font-weight: 300; letter-spacing: -0.025em; }
+.about-text { font-weight: 400; }
+.xp li { font-weight: 400; }
 .xp { list-style: none; }
 .xp li { display: flex; }
 .xp .year { flex-shrink: 0; font-weight: 500; color: var(--muted); }
@@ -112,7 +113,8 @@ a.cover:hover img { transform: scale(1.02); }
 
   .exp-title { grid-area: 23 / 1 / span 1 / span 6; }
   .about-title { grid-area: 23 / 7 / span 1 / span 6; }
-  .about-text { grid-area: 24 / 7 / span 3 / span 6; font-size: calc(24 * var(--p)); line-height: calc(32 * var(--p)); }
+  /* About and Experience share one text style: 18px Regular, ink; years stay as the 14px grey label */
+  .about-text { grid-area: 24 / 7 / span 3 / span 6; font-size: calc(18 * var(--p)); line-height: calc(32 * var(--p)); }
   .xp { grid-area: 24 / 1 / span 4 / span 6; }
   .xp li { font-size: calc(18 * var(--p)); line-height: calc(40 * var(--p)); }
   .xp .year { flex-basis: calc(176 * var(--p)); font-size: calc(14 * var(--p)); }
@@ -151,7 +153,7 @@ a.cover:hover img { transform: scale(1.02); }
 
   .about, .experience { display: flex; flex-direction: column; gap: 16px; padding-top: 80px; }
   .about { padding-top: 56px; }
-  .about-text { font-size: 20px; line-height: 32px; }
+  .about-text { font-size: 16px; line-height: 24px; }
   .xp li { font-size: 16px; line-height: 24px; padding-block: 8px; }
   .xp .year { flex-basis: 96px; font-size: 14px; }
 
