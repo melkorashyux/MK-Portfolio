@@ -110,10 +110,10 @@ a.cover:hover img { transform: scale(1.02); }
   .c3 .cover { grid-area: 16 / 1 / span 4 / span 6; }  .c3 .card-meta { grid-area: 20 / 1 / span 2 / span 6; }
   .c4 .cover { grid-area: 16 / 7 / span 4 / span 6; }  .c4 .card-meta { grid-area: 20 / 7 / span 2 / span 6; }
 
-  .about-title { grid-area: 23 / 1 / span 1 / span 6; }
-  .exp-title { grid-area: 23 / 7 / span 1 / span 6; }
-  .about-text { grid-area: 24 / 1 / span 3 / span 6; font-size: calc(24 * var(--p)); line-height: calc(32 * var(--p)); }
-  .xp { grid-area: 24 / 7 / span 4 / span 6; }
+  .exp-title { grid-area: 23 / 1 / span 1 / span 6; }
+  .about-title { grid-area: 23 / 7 / span 1 / span 6; }
+  .about-text { grid-area: 24 / 7 / span 3 / span 6; font-size: calc(24 * var(--p)); line-height: calc(32 * var(--p)); }
+  .xp { grid-area: 24 / 1 / span 4 / span 6; }
   .xp li { font-size: calc(18 * var(--p)); line-height: calc(40 * var(--p)); }
   .xp .year { flex-basis: calc(176 * var(--p)); font-size: calc(14 * var(--p)); }
 
@@ -150,7 +150,7 @@ a.cover:hover img { transform: scale(1.02); }
   .card-desc { font-size: 16px; line-height: 24px; }
 
   .about, .experience { display: flex; flex-direction: column; gap: 16px; padding-top: 80px; }
-  .experience { padding-top: 56px; }
+  .about { padding-top: 56px; }
   .about-text { font-size: 20px; line-height: 32px; }
   .xp li { font-size: 16px; line-height: 24px; padding-block: 8px; }
   .xp .year { flex-basis: 96px; font-size: 14px; }
