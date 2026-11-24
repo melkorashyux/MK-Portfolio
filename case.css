@@ -1,0 +1,82 @@
+/* Case study pages. Loaded after home.css and reuses its tokens, header, buttons and footer.
+   Same 1440 frame: 12 x 72px columns, 32px gutters, 112px margins, 104px row step, 8px baseline.
+   Each section is its own grid; rows inside a section are counted from 1. */
+
+.cs-kicker { font-weight: 500; color: var(--muted); }
+.cs-h1 { font-weight: 600; letter-spacing: -0.055em; }
+.cs-tldr { font-weight: 500; letter-spacing: -0.02em; }
+.cs-label { font-weight: 500; color: var(--faint); }
+.cs-value { font-weight: 400; color: var(--ink); }
+.cs-p { font-weight: 400; color: var(--ink); }
+.cs-p.grey, .cs-row-d { color: var(--muted); }
+.cs-goal { font-weight: 600; letter-spacing: -0.035em; }
+.cs-row-t, .cs-dt, .cs-stat, .cs-next { font-weight: 600; }
+.cs-row-t { letter-spacing: -0.01em; }
+.cs-dt { letter-spacing: -0.04em; }
+.cs-why b { font-weight: 600; }
+.cs-media { background: var(--cover); overflow: hidden; }
+.cs-media img, .cs-media video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 0% 0%; }
+.cs-media.contain img { object-fit: contain; background: #FFFFFF; }
+.cs-stat { letter-spacing: -0.06em; }
+.cs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.cs-list b { font-weight: 600; }
+.cs-next-label { font-weight: 500; color: var(--muted); }
+.cs-next { letter-spacing: -0.055em; }
+.cs-next a:hover { text-decoration: none; opacity: 0.7; }
+
+/* ---------- desktop ---------- */
+@media (min-width: 900px) {
+  .case { --p: min(1px, calc(100vw / 1440)); width: calc(1440 * var(--p)); margin-inline: auto; padding-bottom: calc(104 * var(--p)); }
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(12, calc(72 * var(--p)));
+    grid-auto-rows: calc(72 * var(--p));
+    column-gap: calc(32 * var(--p)); row-gap: calc(32 * var(--p));
+    padding: calc(136 * var(--p)) calc(112 * var(--p)) 0;   /* one empty row (104) + the 32 gutter between sections */
+  }
+  .cs-grid.first { padding-top: calc(32 * var(--p)); }
+  .cs-grid > *, .cs-grid header.top > *, .cs-grid .h-nav a { min-width: 0; position: relative; }
+
+  .cs-kicker, .cs-label, .cs-next-label { font-size: calc(14 * var(--p)); line-height: calc(16 * var(--p)); }
+  .cs-value { font-size: calc(18 * var(--p)); line-height: calc(24 * var(--p)); }
+  .cs-p, .cs-row-t, .cs-row-d, .cs-list li, .cs-why { font-size: calc(20 * var(--p)); line-height: calc(32 * var(--p)); }
+  .cs-tldr { font-size: calc(24 * var(--p)); line-height: calc(32 * var(--p)); }
+  .cs-goal, .cs-dt { font-size: calc(32 * var(--p)); line-height: calc(40 * var(--p)); }
+  .cs-list { gap: calc(24 * var(--p)); }
+  .cs-why { margin-top: calc(24 * var(--p)); }
+
+  /* hero title: 120/72, Geist baseline 79px into the line, shift -7 onto the module's bottom edge */
+  .cs-h1 { font-size: calc(120 * var(--p)); line-height: calc(72 * var(--p)); top: calc(-7 * var(--p)); text-align: center; white-space: nowrap; }
+  .center { text-align: center; }
+  .cs-stat { font-size: calc(200 * var(--p)); line-height: calc(176 * var(--p)); }
+  .cs-next { font-size: calc(88 * var(--p)); line-height: calc(72 * var(--p)); top: calc(5 * var(--p)); text-align: center; white-space: nowrap; }
+
+  /* the shared footer from home.css, placed inside this page's last section */
+  .case .ftitle { grid-area: 4 / 1 / span 1 / span 12; }
+  .case .fcta { grid-area: 5 / 6 / span 1 / span 2; }
+  .case .links { grid-area: 6 / 1 / span 1 / span 12; }
+}
+
+/* ---------- phone ---------- */
+@media (max-width: 899.98px) {
+  .case { padding-bottom: 80px; }
+  .cs-grid { display: flex; flex-direction: column; gap: 16px; padding: 72px max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px)); }
+  .cs-grid.first { padding-top: 24px; }
+  .cs-grid > * { grid-area: auto !important; align-self: stretch !important; }
+  .cs-grid .gap-top { margin-top: 24px; }
+  .cs-kicker, .cs-label, .cs-next-label { font-size: 14px; line-height: 16px; }
+  .cs-value { font-size: 16px; line-height: 24px; margin-bottom: 8px; }
+  .cs-p, .cs-row-t, .cs-row-d, .cs-list li, .cs-why { font-size: 16px; line-height: 24px; }
+  .cs-row-d { margin-bottom: 8px; }
+  .cs-tldr { font-size: 18px; line-height: 28px; }
+  .cs-goal, .cs-dt { font-size: 24px; line-height: 32px; }
+  .cs-list { gap: 16px; }
+  .cs-why { margin-top: 12px; }
+  .cs-h1 { font-size: 48px; line-height: 56px; text-align: center; margin-top: 48px; }
+  .center { text-align: center; }
+  .cs-media { aspect-ratio: 16 / 10; }
+  .cs-stat { font-size: 96px; line-height: 96px; }
+  .cs-next { font-size: 40px; line-height: 48px; text-align: center; }
+  .cs-head { display: none; }
+  .case .contact { padding-top: 56px; }
+}
