@@ -2,7 +2,6 @@
 (function () {
   if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var groups = [
-    ['.c3 .cover', 0], ['.c4 .cover', 0], ['.c3 .card-meta', 90], ['.c4 .card-meta', 90],
     ['.exp-title', 0], ['.about-title', 0], ['.about-text', 90],
     ['.ftitle', 0], ['.fcta', 90], ['.links', 180]
   ];
