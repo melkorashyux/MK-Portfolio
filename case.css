@@ -60,9 +60,9 @@
   .cs-next { font-size: calc(88 * var(--p)); line-height: calc(72 * var(--p)); top: calc(5 * var(--p)); text-align: center; white-space: nowrap; }
 
   /* the shared footer from home.css, placed inside this page's last section */
-  .case .ftitle { grid-area: 4 / 1 / span 1 / span 12; }
-  .case .fcta { grid-area: 5 / 6 / span 1 / span 2; }
-  .case .links { grid-area: 6 / 1 / span 1 / span 12; }
+  .case .ftitle { grid-area: 1 / 1 / span 1 / span 12; }
+  .case .fcta { grid-area: 2 / 6 / span 1 / span 2; }
+  .case .links { grid-area: 3 / 1 / span 1 / span 12; }
 }
 
 /* ---------- phone ---------- */
