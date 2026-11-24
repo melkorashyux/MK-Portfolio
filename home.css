@@ -92,12 +92,12 @@ a.cover:hover img { transform: scale(1.02); }
   .h-nav a:nth-child(1) { grid-area: 1 / 10; } .h-nav a:nth-child(2) { grid-area: 1 / 11; } .h-nav a:nth-child(3) { grid-area: 1 / 12; }
 
   /* centered hero. Name 120/72: Geist's baseline lands 79px into the line, shift -7 onto the module's bottom edge.
-     Row 4 holds two lines with baselines at 40 (title, 40/40) and 72 (description, 24/32), both on the 8px grid. */
+     Row 4 holds the title (32/40) and the description (24/32, Regular). Button on row 6, location on row 7. */
   .name { grid-area: 3 / 1 / span 1 / span 12; font-size: calc(120 * var(--p)); line-height: calc(72 * var(--p)); top: calc(-7 * var(--p)); text-align: center; white-space: nowrap; }
-  .sub { grid-area: 4 / 1 / span 1 / span 12; align-self: start; font-size: calc(40 * var(--p)); line-height: calc(40 * var(--p)); top: calc(6 * var(--p)); text-align: center; white-space: nowrap; }
-  .desc { grid-area: 4 / 1 / span 1 / span 12; align-self: start; font-size: calc(24 * var(--p)); line-height: calc(32 * var(--p)); top: calc(48 * var(--p)); text-align: center; white-space: nowrap; }
-  .cta { grid-area: 5 / 6 / span 1 / span 2; font-size: calc(24 * var(--p)); top: calc(32 * var(--p)); }
-  .loc { grid-area: 6 / 1 / span 1 / span 12; align-self: start; top: calc(48 * var(--p)); text-align: center; }
+  .sub { grid-area: 4 / 1 / span 1 / span 12; align-self: start; font-size: calc(32 * var(--p)); line-height: calc(40 * var(--p)); top: calc(4 * var(--p)); text-align: center; white-space: nowrap; }
+  .desc { grid-area: 4 / 1 / span 1 / span 12; align-self: start; font-size: calc(24 * var(--p)); line-height: calc(32 * var(--p)); top: calc(47 * var(--p)); font-weight: 400; text-align: center; white-space: nowrap; }
+  .cta { grid-area: 6 / 6 / span 1 / span 2; font-size: calc(24 * var(--p)); }
+  .loc { grid-area: 7 / 1 / span 1 / span 12; align-self: start; top: calc(4 * var(--p)); text-align: center; }
 
   /* section titles: 48/48 Medium, shifted 7 so the baseline sits on the module's bottom edge */
   .section-title { font-size: calc(48 * var(--p)); line-height: calc(48 * var(--p)); align-self: end; top: calc(7 * var(--p)); }
