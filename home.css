@@ -113,10 +113,10 @@ a.cover:hover img { transform: scale(1.02); }
 
   .exp-title { grid-area: 23 / 1 / span 1 / span 6; }
   .about-title { grid-area: 23 / 7 / span 1 / span 6; }
-  /* About and Experience share one text style: 18px Regular, ink; years stay as the 14px grey label */
-  .about-text { grid-area: 24 / 7 / span 3 / span 6; font-size: calc(18 * var(--p)); line-height: calc(32 * var(--p)); }
+  /* About and Experience share one text style: 20px Regular, ink; years stay as the 14px grey label */
+  .about-text { grid-area: 24 / 7 / span 3 / span 6; font-size: calc(20 * var(--p)); line-height: calc(32 * var(--p)); }
   .xp { grid-area: 24 / 1 / span 4 / span 6; }
-  .xp li { font-size: calc(18 * var(--p)); line-height: calc(40 * var(--p)); }
+  .xp li { font-size: calc(20 * var(--p)); line-height: calc(40 * var(--p)); }
   .xp .year { flex-basis: calc(176 * var(--p)); font-size: calc(14 * var(--p)); }
 
   /* centered footer: one 88px line on row 30 (baseline on the module's bottom edge), button and links centered below */
