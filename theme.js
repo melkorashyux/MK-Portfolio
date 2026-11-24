@@ -2,7 +2,7 @@
    and swaps the page with a circle that grows out of the button. */
 (function () {
   var root = document.documentElement;
-  var META = { light: '#F3F4F6', dark: '#0B0D10' };
+  var META = { light: '#F3F4F6', dark: '#141312' };
   function current() { return root.dataset.theme === 'dark' ? 'dark' : 'light'; }
   function apply(t) {
     root.dataset.theme = t;

@@ -193,14 +193,14 @@ a.cover:hover img { transform: scale(1.02); }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 [id="work"], [id="about"], [id="contact"] { scroll-margin-top: calc(104 * var(--p, 1px)); }
 
-/* ---------- dark mode: the same cool mist, inverted ---------- */
+/* ---------- dark mode: warm charcoal ---------- */
 :root[data-theme="dark"] {
-  --paper: #0B0D10;
-  --ink: #F3F4F6;
-  --soft: #C9CDD3;
-  --muted: #A2A7AF;
-  --faint: #6F747D;
-  --cover: #1A1D22;
+  --paper: #141312;   /* warm charcoal */
+  --ink: #F2EFEA;
+  --soft: #D6D1CA;
+  --muted: #A8A39C;
+  --faint: #76716B;
+  --cover: #22201E;
   color-scheme: dark;
 }
 .mk { color: var(--ink); }
