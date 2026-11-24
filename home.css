@@ -55,8 +55,8 @@ a.cover:hover img { transform: scale(1.02); }
 .section-title { font-weight: 500; letter-spacing: -0.045em; }
 .about-text { font-weight: 300; letter-spacing: -0.025em; }
 .xp { list-style: none; }
-.xp li { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-.xp .year { flex-shrink: 0; text-align: right; font-weight: 500; color: var(--muted); }
+.xp li { display: flex; }
+.xp .year { flex-shrink: 0; font-weight: 500; color: var(--muted); }
 .links { display: flex; font-weight: 500; color: var(--muted); }
 .links a:hover { color: var(--ink); }
 .loc { color: var(--faint); font-weight: 500; }
@@ -115,7 +115,7 @@ a.cover:hover img { transform: scale(1.02); }
   .about-text { grid-area: 24 / 7 / span 3 / span 6; font-size: calc(24 * var(--p)); line-height: calc(32 * var(--p)); }
   .xp { grid-area: 24 / 1 / span 4 / span 6; }
   .xp li { font-size: calc(18 * var(--p)); line-height: calc(40 * var(--p)); }
-  .xp .year { font-size: calc(14 * var(--p)); }
+  .xp .year { flex-basis: calc(176 * var(--p)); font-size: calc(14 * var(--p)); }
 
   /* centered footer: one 88px line on row 30 (baseline on the module's bottom edge), button and links centered below */
   .ftitle { grid-area: 30 / 1 / span 1 / span 12; font-size: calc(88 * var(--p)); line-height: calc(72 * var(--p)); top: calc(5 * var(--p)); text-align: center; white-space: nowrap; }
@@ -153,7 +153,7 @@ a.cover:hover img { transform: scale(1.02); }
   .about { padding-top: 56px; }
   .about-text { font-size: 20px; line-height: 32px; }
   .xp li { font-size: 16px; line-height: 24px; padding-block: 8px; }
-  .xp .year { font-size: 14px; }
+  .xp .year { flex-basis: 96px; font-size: 14px; }
 
   .contact { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px; padding-top: 104px; }
   .ftitle { font-size: 40px; line-height: 48px; }
