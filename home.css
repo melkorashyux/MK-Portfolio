@@ -34,7 +34,10 @@ a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
 .mk { display: block; height: auto; }
 .mk svg { display: block; width: 100%; height: auto; }
 .small { font-weight: 500; color: var(--muted); }
-.statement b, .closing b { font-weight: 600; }
+.name { font-weight: 600; letter-spacing: -0.055em; }
+.sub { font-weight: 600; letter-spacing: -0.04em; }
+.desc { font-weight: 300; color: var(--muted); letter-spacing: -0.02em; }
+.ftitle { font-weight: 600; letter-spacing: -0.055em; }
 .cta {
   display: flex; align-items: center; justify-content: center;
   background: var(--ink); color: #FFFFFF; border-radius: 999px;
@@ -54,10 +57,10 @@ a.cover:hover img { transform: scale(1.02); }
 .xp { list-style: none; }
 .xp li { display: flex; }
 .xp .year { flex-shrink: 0; font-weight: 500; color: var(--muted); }
-.links { display: flex; flex-direction: column; font-weight: 500; }
+.links { display: flex; font-weight: 500; color: var(--muted); }
+.links a:hover { color: var(--ink); }
 .loc { color: var(--faint); font-weight: 500; }
-.h-name { font-weight: 400; }
-.h-nav { display: flex; }
+.h-nav { display: flex; font-weight: 500; }
 .main { display: contents; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -77,25 +80,24 @@ a.cover:hover img { transform: scale(1.02); }
     column-gap: calc(32 * var(--p));
     row-gap: calc(32 * var(--p));
   }
-  .home > *, .card > * { min-width: 0; position: relative; }
-  .card, .about, .experience, .contact, header.top, .hero, .hero-actions, .work { display: contents; }
+  /* every grid item (including ones inside display: contents wrappers) is positioned, so the baseline nudges (top) apply */
+  .home > *, .card > *, .h-nav a, .name, .sub, .desc, .cta, .loc, .section-title, .about-text, .xp, .ftitle, .links { min-width: 0; position: relative; }
+  .card, .about, .experience, .contact, header.top, .hero, .hero-actions, .work, .h-nav { display: contents; }
 
-  .small, .loc, .h-name, .h-nav, .card-kicker { font-size: calc(14 * var(--p)); line-height: calc(16 * var(--p)); }
+  .small, .loc, .h-nav a, .card-kicker { font-size: calc(14 * var(--p)); line-height: calc(16 * var(--p)); }
 
-  /* header */
+  /* header: logo in column 1, each nav link centered in its own column (10, 11, 12) */
   .h-logo { grid-area: 1 / 1 / span 1 / span 1; align-self: center; width: calc(52 * var(--p)); }
-  .h-name { grid-area: 1 / 2 / span 1 / span 3; align-self: center; }
-  .h-nav { grid-area: 1 / 9 / span 1 / span 4; align-self: center; justify-content: flex-end; gap: calc(32 * var(--p)); }
+  .h-nav a { align-self: center; justify-self: center; white-space: nowrap; }
+  .h-nav a:nth-child(1) { grid-area: 1 / 10; } .h-nav a:nth-child(2) { grid-area: 1 / 11; } .h-nav a:nth-child(3) { grid-area: 1 / 12; }
 
-  /* statement: one line per 104px row; Geist's baseline lands 83px into the line, so shift up 11 to sit on the module's bottom edge */
-  .statement, .closing {
-    font-size: calc(88 * var(--p)); line-height: calc(104 * var(--p));
-    font-weight: 300; letter-spacing: -0.055em; top: calc(-11 * var(--p));
-  }
-  .statement b { letter-spacing: -0.055em; }
-  .statement { grid-area: 3 / 1 / span 3 / span 12; }
-  .cta { grid-area: 7 / 1 / span 1 / span 2; font-size: calc(24 * var(--p)); }
-  .loc { grid-area: 7 / 3 / span 1 / span 3; align-self: center; }
+  /* centered hero. Name 120/72: Geist's baseline lands 79px into the line, shift -7 onto the module's bottom edge.
+     Row 4 holds two lines with baselines at 40 (title, 40/40) and 72 (description, 24/32), both on the 8px grid. */
+  .name { grid-area: 3 / 1 / span 1 / span 12; font-size: calc(120 * var(--p)); line-height: calc(72 * var(--p)); top: calc(-7 * var(--p)); text-align: center; white-space: nowrap; }
+  .sub { grid-area: 4 / 1 / span 1 / span 12; align-self: start; font-size: calc(40 * var(--p)); line-height: calc(40 * var(--p)); top: calc(6 * var(--p)); text-align: center; white-space: nowrap; }
+  .desc { grid-area: 4 / 1 / span 1 / span 12; align-self: start; font-size: calc(24 * var(--p)); line-height: calc(32 * var(--p)); top: calc(48 * var(--p)); text-align: center; white-space: nowrap; }
+  .cta { grid-area: 5 / 6 / span 1 / span 2; font-size: calc(24 * var(--p)); top: calc(32 * var(--p)); }
+  .loc { grid-area: 6 / 1 / span 1 / span 12; align-self: start; top: calc(48 * var(--p)); text-align: center; }
 
   /* section titles: 48/48 Medium, shifted 7 so the baseline sits on the module's bottom edge */
   .section-title { font-size: calc(48 * var(--p)); line-height: calc(48 * var(--p)); align-self: end; top: calc(7 * var(--p)); }
@@ -115,12 +117,10 @@ a.cover:hover img { transform: scale(1.02); }
   .xp li { font-size: calc(18 * var(--p)); line-height: calc(40 * var(--p)); }
   .xp .year { flex-basis: calc(176 * var(--p)); font-size: calc(14 * var(--p)); }
 
-  .closing { grid-area: 29 / 1 / span 2 / span 8; }
-  /* links pinned at both ends: the email's top matches the cap top of "Let's", Resume sits on the "Say hello." baseline */
-  .links {
-    grid-area: 29 / 9 / span 2 / span 4; align-self: start; align-items: flex-end;
-    font-size: calc(18 * var(--p)); line-height: calc(38.425 * var(--p)); top: calc(-2.91 * var(--p));
-  }
+  /* centered footer: one 88px line on row 30 (baseline on the module's bottom edge), button and links centered below */
+  .ftitle { grid-area: 30 / 1 / span 1 / span 12; font-size: calc(88 * var(--p)); line-height: calc(72 * var(--p)); top: calc(5 * var(--p)); text-align: center; white-space: nowrap; }
+  .fcta { grid-area: 31 / 6 / span 1 / span 2; top: 0; }
+  .links { grid-area: 32 / 1 / span 1 / span 12; align-self: center; justify-content: center; gap: calc(40 * var(--p)); font-size: calc(18 * var(--p)); line-height: calc(24 * var(--p)); }
 }
 
 /* ---------- phone and small tablet: one column on the 8px baseline ---------- */
@@ -131,12 +131,14 @@ a.cover:hover img { transform: scale(1.02); }
   }
   header.top { display: flex; align-items: center; gap: 12px; }
   .h-logo { width: 40px; }
-  .h-name, .h-nav, .small, .loc, .card-kicker { font-size: 14px; line-height: 16px; }
+  .h-nav, .small, .loc, .card-kicker { font-size: 14px; line-height: 16px; }
   .h-nav { margin-left: auto; gap: 20px; }
 
-  .hero { display: flex; flex-direction: column; padding-top: 64px; }
-  .statement { font-size: 40px; line-height: 48px; font-weight: 300; letter-spacing: -0.045em; }
-  .hero-actions { display: flex; align-items: center; gap: 16px; margin-top: 40px; }
+  .hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 72px; }
+  .name { font-size: 48px; line-height: 56px; }
+  .sub { font-size: 22px; line-height: 32px; margin-top: 16px; }
+  .desc { font-size: 16px; line-height: 24px; margin-top: 8px; }
+  .hero-actions { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 32px; }
   .cta { height: 56px; padding-inline: 28px; font-size: 20px; }
 
   .section-title { font-size: 32px; line-height: 40px; }
@@ -151,10 +153,9 @@ a.cover:hover img { transform: scale(1.02); }
   .experience { padding-top: 56px; }
   .about-text { font-size: 20px; line-height: 32px; }
   .xp li { font-size: 16px; line-height: 24px; padding-block: 8px; }
-  .h-name { display: none; }
   .xp .year { flex-basis: 96px; font-size: 14px; }
 
-  .contact { display: flex; flex-direction: column; gap: 32px; padding-top: 96px; }
-  .closing { font-size: 48px; line-height: 56px; font-weight: 300; letter-spacing: -0.05em; }
-  .links { font-size: 18px; line-height: 40px; }
+  .contact { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px; padding-top: 104px; }
+  .ftitle { font-size: 40px; line-height: 48px; }
+  .links { flex-wrap: wrap; justify-content: center; column-gap: 24px; row-gap: 8px; font-size: 16px; line-height: 24px; }
 }
