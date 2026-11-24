@@ -1,17 +1,45 @@
-/* Scroll reveal for the home page: each block rises one baseline (8px) the first time it enters the screen. */
+/* Scroll reveal for the home page: each block rises one baseline (8px) the first time it enters the screen.
+   Section based: blocks play strictly in page order, and a section starts only after the one before it has
+   finished (Experience, then About, then the footer), even when a later block reaches the screen first. */
 (function () {
   if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var groups = [
-    ['.exp-title', 0], ['.about-title', 0], ['.about-text', 90],
-    ['.ftitle', 0], ['.fcta', 90], ['.links', 180]
+  var sections = [
+    ['.exp-title', '.xp li'],
+    ['.about-title', '.about-text'],
+    ['.ftitle', '.fcta', '.links']
   ];
-  var els = [];
-  groups.forEach(function (g) { document.querySelectorAll(g[0]).forEach(function (el) { el.style.setProperty('--d', g[1] + 'ms'); els.push(el); }); });
-  document.querySelectorAll('.xp li').forEach(function (li, i) { li.style.setProperty('--d', (90 + i * 60) + 'ms'); els.push(li); });
-  els.forEach(function (el) { el.classList.add('rv'); });
+  var STEP = 70;   // stagger between blocks inside a section
+  var DONE = 450;  // a block looks settled after this long; the next section waits for it
+
+  var seq = [];
+  sections.forEach(function (sels, s) {
+    sels.forEach(function (sel) {
+      document.querySelectorAll(sel).forEach(function (el) { el.classList.add('rv'); seq.push({ el: el, sec: s, ready: false }); });
+    });
+  });
   document.documentElement.classList.add('reveal-on');
+
+  var next = 0, lastStart = -1e9, lastSec = -1;
+  function pump() {
+    var now = performance.now();
+    while (next < seq.length && seq[next].ready) {
+      var it = seq[next++];
+      if (it.el.getBoundingClientRect().bottom < 0) { it.el.classList.add('now'); continue; } // already scrolled past: just show it
+      var start = Math.max(now, lastStart + (it.sec === lastSec ? STEP : DONE));
+      it.el.style.setProperty('--d', Math.round(start - now) + 'ms');
+      it.el.classList.add('in');
+      lastStart = start; lastSec = it.sec;
+    }
+  }
+
   var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      // this block and everything before it may play now, in order
+      for (var i = 0; i < seq.length; i++) { seq[i].ready = true; if (seq[i].el === e.target) break; }
+    });
+    pump();
   }, { rootMargin: '0px 0px -40px 0px' });
-  els.forEach(function (el) { io.observe(el); });
+  seq.forEach(function (it) { io.observe(it.el); });
 })();

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume · Mostafa Elkorashy</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <!-- This page exists so Cloudflare Web Analytics counts resume opens as visits to /resume.
+       It shows for a moment, then opens the PDF. -->
+  <script>try{var t=localStorage.getItem("theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}</script>
+  <style>
+    :root { --paper: #F3F4F6; --ink: #0B0D10; --muted: #5E636B; }
+    :root[data-theme="dark"] { --paper: #141312; --ink: #F2EFEA; --muted: #A8A39C; }
+    html, body { height: 100%; margin: 0; }
+    body { background: var(--paper); color: var(--muted); font: 400 18px/24px "Geist", "Helvetica Neue", Arial, sans-serif; display: grid; place-items: center; }
+    a { color: var(--ink); font-weight: 500; }
+  </style>
+</head>
+<body>
+  <p>Opening the resume… <a id="pdf" href="assets/Mostafa-Elkorashy-Resume.pdf">Open it here</a></p>
+  <script>
+    // Wait for the page to finish loading (and the analytics beacon to start), then open the PDF in place.
+    window.addEventListener("load", function () {
+      setTimeout(function () { location.replace(document.getElementById("pdf").href); }, 700);
+    });
+  </script>
+</body>
+</html>
