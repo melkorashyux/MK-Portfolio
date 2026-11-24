@@ -162,3 +162,22 @@ a.cover:hover img { transform: scale(1.02); }
   .ftitle { font-size: 40px; line-height: 48px; }
   .links { flex-wrap: wrap; justify-content: center; column-gap: 24px; row-gap: 8px; font-size: 16px; line-height: 24px; }
 }
+
+/* ---------- load motion: baseline rise ----------
+   Each row fades in while rising exactly one baseline (8px), top to bottom, 90ms apart.
+   Runs once on load; `translate` is separate from the `top` nudges that hold the baselines. */
+@keyframes baseline-rise { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .h-logo, .h-nav a, .name, .sub, .desc, .hero .cta, .loc, .work-title,
+  .c1 .cover, .c2 .cover, .c1 .card-meta, .c2 .card-meta {
+    animation: baseline-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .name { animation-delay: 90ms; }
+  .sub { animation-delay: 180ms; }
+  .desc { animation-delay: 270ms; }
+  .hero .cta { animation-delay: 360ms; }
+  .loc { animation-delay: 450ms; }
+  .work-title { animation-delay: 540ms; }
+  .c1 .cover, .c2 .cover { animation-delay: 630ms; }
+  .c1 .card-meta, .c2 .card-meta { animation-delay: 720ms; }
+}
