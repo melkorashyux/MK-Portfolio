@@ -90,3 +90,6 @@
   .cs-head { display: none; }
   .case .contact { padding-top: 56px; }
 }
+
+/* one baseline (8px) between a decision or feature title and its description */
+.cs-dt + .cs-p { margin-top: calc(8 * var(--p, 1px)); }
