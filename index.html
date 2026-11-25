@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200..800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="home.css?v=11" />
+  <link rel="stylesheet" href="home.css?v=12" />
 </head>
 <body>
   <div class="home" id="top">
@@ -58,7 +58,18 @@
       <p class="desc">Mostly design, some code, a lot of side quests with AI.</p>
       <div class="hero-actions">
         <a class="cta" href="mailto:hi@mostafaelkorashy.com">Say Hello</a>
-        <p class="loc">Egypt – Open to work</p>
+        <p class="loc">Egypt<span class="loc-time"></span> – Open to work</p>
+        <script>
+          /* Mostafa's local time (Cairo, daylight saving included), e.g. "Egypt, 14:32 GMT+2". Updates every minute. */
+          (function () {
+            var el = document.currentScript.previousElementSibling.querySelector('.loc-time');
+            try {
+              var f = new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Cairo', hour: '2-digit', minute: '2-digit', timeZoneName: 'shortOffset' });
+              var tick = function () { el.textContent = ', ' + f.format(new Date()); };
+              tick(); setInterval(tick, 30000);
+            } catch (e) {}
+          })();
+        </script>
       </div>
     </section>
 

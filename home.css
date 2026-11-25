@@ -63,6 +63,7 @@ a.cover:hover img { transform: scale(1.02); }
 .links { display: flex; font-weight: 500; color: var(--muted); }
 .links a:hover { color: var(--ink); }
 .loc { color: var(--faint); font-weight: 500; }
+.loc-time { font-variant-numeric: tabular-nums; }
 .h-nav { display: flex; font-weight: 500; }
 .main { display: contents; }
 
