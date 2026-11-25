@@ -37,3 +37,23 @@
     mq.addEventListener('change', function (e) { if (!localStorage.getItem('theme')) apply(e.matches ? 'dark' : 'light'); });
   } catch (e) {}
 })();
+
+/* Pretty wrap: glue the last two words of every text block with a no-break space,
+   so a line never ends up with one word on its own. Short titles (under 4 words) are left free. */
+(function () {
+  var els = document.querySelectorAll('p, li, h1, h2, h3, dd, figcaption');
+  els.forEach(function (el) {
+    if (el.closest('header.top, nav')) return;
+    var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nodes = [], n;
+    while ((n = w.nextNode())) nodes.push(n);
+    var full = nodes.map(function (t) { return t.data; }).join('');
+    if (full.trim().split(/\s+/).length < 4) return;
+    var end = full.replace(/\s+$/, '').length, i = full.lastIndexOf(' ', end - 1);
+    if (i < 0) return;
+    for (var k = 0, pos = 0; k < nodes.length; k++) {
+      var len = nodes[k].data.length;
+      if (i < pos + len) { var d = nodes[k].data, j = i - pos; nodes[k].data = d.slice(0, j) + ' ' + d.slice(j + 1); return; }
+      pos += len;
+    }
+  });
+})();
