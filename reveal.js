@@ -1,9 +1,10 @@
 /* Scroll reveal for the home page: each block rises one baseline (8px) the first time it enters the screen.
    Section based: blocks play strictly in page order, and a section starts only after the one before it has
-   finished (Experience, then About, then the footer), even when a later block reaches the screen first. */
+   finished (second row of work, Experience, About, then the footer), even when a later block reaches the screen first. */
 (function () {
   if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var sections = [
+    ['.c3 .cover', '.c4 .cover', '.c3 .card-meta', '.c4 .card-meta'],
     ['.exp-title', '.xp li'],
     ['.about-title', '.about-text'],
     ['.ftitle', '.fcta', '.links']
