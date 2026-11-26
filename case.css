@@ -4,33 +4,29 @@
 
 .cs-kicker { font-weight: 500; color: var(--muted); }
 .cs-h1 { font-weight: 600; letter-spacing: -0.055em; }
-.cs-tldr { font-weight: 500; letter-spacing: -0.02em; }
-.cs-label { font-weight: 500; color: var(--faint); }
+.cs-tldr { font-weight: 400; letter-spacing: -0.02em; }
+.cs-label { font-weight: 500; color: var(--muted); }
 .cs-value { font-weight: 400; color: var(--ink); }
 .cs-p { font-weight: 400; color: var(--ink); }
 .cs-p.grey, .cs-row-d { color: var(--muted); }
-.cs-goal { font-weight: 600; letter-spacing: -0.035em; }
+.cs-goal { font-weight: 600; letter-spacing: -0.04em; }
 .cs-row-t, .cs-dt, .cs-stat, .cs-next { font-weight: 600; }
 .cs-row-t { letter-spacing: -0.01em; }
 .cs-dt { letter-spacing: -0.04em; }
-.cs-why b { font-weight: 800; }
+.cs-why b { font-weight: 600; }
 .cs-media { background: var(--cover); overflow: hidden; }
 .cs-media img, .cs-media video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 0% 0%; }
 .cs-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; background: var(--cover); }
 .cs-ph span { font-size: 14px; line-height: 16px; font-weight: 500; color: var(--faint); max-width: 28em; }
-.cs-count { font-weight: 300; color: var(--faint); margin-left: 6px; }
+.cs-count { font-weight: 400; color: var(--muted); margin-left: 6px; }
 .cs-media.contain img { object-fit: contain; background: #FFFFFF; }
 /* transparent device mockups: show the whole image on the theme's cover color */
 .cs-media img.device { object-fit: contain; object-position: 50% 50%; }
 .cs-stat { letter-spacing: -0.06em; }
 .cs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .cs-list b { font-weight: 600; }
-.cs-tight li { font-weight: 500; }
-/* label + description lists: bold label, regular text */
-.cs-tight.cs-defs li { font-weight: 400; }
+.cs-tight li { font-weight: 400; }
 .cs-defs b { font-weight: 600; }
-/* findings lists: light text under the semibold mind names */
-.cs-findings .cs-tight li { font-weight: 300; }
 .cs-next-label { font-weight: 500; color: var(--muted); }
 .cs-next { letter-spacing: -0.055em; }
 .cs-next a:hover { text-decoration: none; opacity: 0.7; }
