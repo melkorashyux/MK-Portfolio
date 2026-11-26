@@ -241,3 +241,17 @@ a.cover:hover img { transform: scale(1.02); }
 @media (max-width: 899.98px) {
   .theme-toggle { margin-left: 8px; margin-right: -10px; }
 }
+/* floating toggle: appears bottom-right after the header scrolls away; quiet frosted circle */
+.theme-toggle.theme-float {
+  position: fixed; z-index: 50; margin: 0; grid-area: auto;
+  right: max(20px, env(safe-area-inset-right, 0px)); bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  width: 44px; height: 44px; padding: 12px; color: var(--soft);
+  background: color-mix(in srgb, var(--paper) 78%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent), 0 4px 16px color-mix(in srgb, var(--ink) 6%, transparent);
+  opacity: 0; translate: 0 8px; pointer-events: none; transition: opacity .3s ease, translate .3s ease, background .2s ease, color .2s ease;
+}
+.theme-toggle.theme-float svg { width: 20px; height: 20px; }
+.theme-toggle.theme-float.on { opacity: 1; translate: 0 0; pointer-events: auto; }
+.theme-toggle.theme-float:hover { color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, var(--ink)); }
+@media (prefers-reduced-motion: reduce) { .theme-toggle.theme-float { transition: none; translate: 0 0; } }

@@ -12,6 +12,21 @@
       b.setAttribute('aria-pressed', String(t === 'dark'));
     });
   }
+  /* a floating copy of the toggle that fades in once the header's toggle scrolls out of view */
+  var head = document.querySelector('header.top .theme-toggle');
+  if (head && 'IntersectionObserver' in window) {
+    var fl = head.cloneNode(true);
+    fl.innerHTML = fl.innerHTML.replace(/tt-moon/g, 'tt-moon-f');
+    fl.classList.add('theme-float');
+    fl.tabIndex = -1; fl.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(fl);
+    new IntersectionObserver(function (es) {
+      var show = !es[0].isIntersecting;
+      fl.classList.toggle('on', show);
+      fl.tabIndex = show ? 0 : -1;
+      if (show) fl.removeAttribute('aria-hidden'); else fl.setAttribute('aria-hidden', 'true');
+    }).observe(head);
+  }
   apply(current());
   document.querySelectorAll('.theme-toggle').forEach(function (btn) {
     btn.addEventListener('click', function () {
