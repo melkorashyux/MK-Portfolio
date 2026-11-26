@@ -23,6 +23,7 @@ body {
   font-family: var(--font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-wrap: pretty; /* even line lengths; theme.js also guarantees no single word on the last line */
 }
 h1, h2, h3, p, ol { margin: 0; padding: 0; }
 img { display: block; max-width: 100%; }

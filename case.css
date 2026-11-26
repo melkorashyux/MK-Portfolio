@@ -34,6 +34,13 @@
 .cs-next-label { font-weight: 500; color: var(--muted); }
 .cs-next { letter-spacing: -0.055em; }
 .cs-next a:hover { text-decoration: none; opacity: 0.7; }
+/* previous / next case study: small grey label over a title; the title underlines on hover */
+.pn { display: flex; flex-direction: column; gap: 8px; }
+.pn:hover { text-decoration: none; }
+.pn.r { align-items: flex-end; text-align: right; }
+.pn-label { font-weight: 500; color: var(--muted); }
+.pn-t { font-weight: 600; letter-spacing: -0.04em; color: var(--ink); text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 2px; text-underline-offset: 6px; transition: text-decoration-color .2s ease; }
+.pn:hover .pn-t, .pn:focus-visible .pn-t { text-decoration-color: currentColor; }
 
 /* ---------- desktop ---------- */
 @media (min-width: 900px) {
@@ -57,6 +64,9 @@
   .cs-list.cs-tight { gap: 0; }
   .cs-tight li { line-height: calc(40 * var(--p)); }
   .cs-why { margin-top: calc(24 * var(--p)); }
+  .pn-label { font-size: calc(14 * var(--p)); line-height: calc(16 * var(--p)); }
+  .pn-t { font-size: calc(32 * var(--p)); line-height: calc(40 * var(--p)); }
+  .pn { gap: calc(8 * var(--p)); align-self: end; }
 
   /* hero title: 120/72, Geist baseline 79px into the line, shift -7 onto the module's bottom edge */
   .cs-h1 { font-size: calc(120 * var(--p)); line-height: calc(72 * var(--p)); top: calc(-7 * var(--p)); text-align: center; white-space: nowrap; }
@@ -88,6 +98,10 @@
   .cs-list { gap: 16px; }
   .cs-list.cs-tight { gap: 4px; }
   .cs-why { margin-top: 12px; }
+  .cs-pn { flex-direction: row !important; justify-content: space-between; gap: 24px !important; }
+  .cs-pn .pn { flex: 1 1 0; min-width: 0; }
+  .pn-label { font-size: 14px; line-height: 16px; }
+  .pn-t { font-size: 20px; line-height: 28px; }
   .cs-h1 { font-size: 48px; line-height: 56px; text-align: center; margin-top: 48px; }
   .center { text-align: center; }
   .cs-media { aspect-ratio: 16 / 10; }
