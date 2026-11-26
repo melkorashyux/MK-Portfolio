@@ -20,10 +20,17 @@
 .cs-ph span { font-size: 14px; line-height: 16px; font-weight: 500; color: var(--faint); max-width: 28em; }
 .cs-count { font-weight: 300; color: var(--faint); margin-left: 6px; }
 .cs-media.contain img { object-fit: contain; background: #FFFFFF; }
+/* transparent device mockups: show the whole image on the theme's cover color */
+.cs-media img.device { object-fit: contain; object-position: 50% 50%; }
 .cs-stat { letter-spacing: -0.06em; }
 .cs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .cs-list b { font-weight: 600; }
 .cs-tight li { font-weight: 500; }
+/* label + description lists: bold label, regular text */
+.cs-tight.cs-defs li { font-weight: 400; }
+.cs-defs b { font-weight: 600; }
+/* findings lists: light text under the semibold mind names */
+.cs-findings .cs-tight li { font-weight: 300; }
 .cs-next-label { font-weight: 500; color: var(--muted); }
 .cs-next { letter-spacing: -0.055em; }
 .cs-next a:hover { text-decoration: none; opacity: 0.7; }
