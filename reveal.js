@@ -10,7 +10,7 @@
     ['.ftitle', '.fcta', '.links']
   ];
   var STEP = 70;   // stagger between blocks inside a section
-  var DONE = 450;  // a block looks settled after this long; the next section waits for it
+  var DONE = 70;   // next section follows right away, so nothing sits blank while you scroll
 
   var seq = [];
   sections.forEach(function (sels, s) {
@@ -41,6 +41,6 @@
       for (var i = 0; i < seq.length; i++) { seq[i].ready = true; if (seq[i].el === e.target) break; }
     });
     pump();
-  }, { rootMargin: '0px 0px -40px 0px' });
+  }, { rootMargin: '0px 0px 0px 0px' });
   seq.forEach(function (it) { io.observe(it.el); });
 })();
